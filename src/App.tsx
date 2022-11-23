@@ -1,7 +1,11 @@
-function App() {
+import { PropsWithChildren } from "react";
+
+function App(props: PropsWithChildren) {
     return (
-        <div className="App">
-        </div>
+        <>
+            <header>Header</header>
+            {props.children}
+        </>
     );
 }
 
