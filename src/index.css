@@ -6,6 +6,9 @@
 }
 html, body {
   height: 100%;
+  font-size: 62.5%;
+  --primary-color: #5f0200;
+  --primary-contrast-color: #fffeee;
 }
 body {
   line-height: 1.5;
