@@ -1,15 +1,7 @@
 import { ServerImpl } from "../server";
+import fakeSocket from "./_fakeSocket";
 
 describe("server", function() {
-    const fakeSocket = {
-        send(_: string | ArrayBufferLike | Blob | ArrayBufferView): void { },
-        onmessage(_: MessageEvent<string>): any { },
-        dispatch(event: string, payload: Record<string, any>) {
-            this.onmessage(new MessageEvent(event, {
-                data: JSON.stringify(payload),
-            }));
-        }
-    };
 
     it("sends", function() {
         const server = new ServerImpl(fakeSocket);

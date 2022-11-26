@@ -1,9 +1,9 @@
 import { createHashRouter } from "react-router-dom";
-import Home from "./routes/Home";
+import Queue from "./routes/Home";
 
 export default createHashRouter([
     {
         path: "/",
-        element: <Home />,
+        element: <Queue />,
     },
 ]);
