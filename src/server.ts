@@ -1,5 +1,7 @@
 export enum Command {
-    QueueUp = "Queue.Add"
+    QueueUp = "Queue.Add",
+    AcceptMatch = "Matchmaker.Accept",
+    DeclineMatch = "Matchmaker.Decline",
 }
 
 export enum Response {
