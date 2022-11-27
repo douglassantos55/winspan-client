@@ -15,14 +15,16 @@ function Queue({ server }: QueueProps) {
     useEffect(function() {
         const waitId = server.on(Response.WaitForMatch, () => setWaiting(true));
         const declineId = server.on(Response.MatchDeclined, () => setWaiting(false));
-        const matchId = server.on(Response.MatchFound, () => navigate('/match-found'));
+        const matchId = server.on(Response.MatchFound, (payload: any) =>
+            navigate('/match-found', { state: { time: payload } })
+        );
 
         return function() {
             server.off(Response.WaitForMatch, [waitId]);
             server.off(Response.MatchDeclined, [declineId]);
             server.off(Response.MatchFound, [matchId]);
         };
-    }, []);
+    }, [server, navigate]);
 
     function queue() {
         server.send({ Method: Command.QueueUp });

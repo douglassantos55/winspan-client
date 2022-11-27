@@ -11,6 +11,6 @@ export default createHashRouter([
     },
     {
         path: "/match-found",
-        element: <MatchFound />,
+        element: <MatchFound server={server} />,
     }
 ]);
