@@ -19,7 +19,7 @@ interface Transport {
 }
 
 export interface Server {
-    on(event: string, callback: () => void): number;
+    on(event: string, callback: (payload: any) => void): number;
     off(event: string, listeners: number[]): void;
     send(data: Payload): void;
 }
@@ -48,7 +48,7 @@ export class ServerImpl implements Server {
         }
     }
 
-    public on(event: string, callback: () => void): number {
+    public on(event: string, callback: (payload: any) => void): number {
         let callbacks = this.listeners.get(event);
 
         if (callbacks === undefined) {
