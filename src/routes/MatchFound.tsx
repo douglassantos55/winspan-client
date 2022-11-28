@@ -14,9 +14,15 @@ function MatchFound({ server }: Props) {
     const [waiting, setWaiting] = useState(false);
 
     useEffect(function() {
-        server.on(Response.MatchDeclined, () => navigate('/'));
-        server.on(Response.WaitOtherPlayers, () => setWaiting(true));
-        server.on(Response.ChooseCards, () => navigate('/game'));
+        const declinedId = server.on(Response.MatchDeclined, () => navigate('/'));
+        const waitId = server.on(Response.WaitOtherPlayers, () => setWaiting(true));
+        const gameStartId = server.on(Response.ChooseCards, () => navigate('/game'));
+
+        return function() {
+            server.off(Response.MatchDeclined, [declinedId]);
+            server.off(Response.WaitOtherPlayers, [waitId]);
+            server.off(Response.ChooseCards, [gameStartId]);
+        }
     }, [navigate, server]);
 
     function accept() {
