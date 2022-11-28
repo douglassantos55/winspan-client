@@ -1,3 +1,4 @@
+import styles from "./MatchFound.module.css";
 import { Command, Response, Server } from "../server";
 import Button from '../components/Button';
 import { useEffect, useState } from "react";
@@ -34,19 +35,21 @@ function MatchFound({ server }: Props) {
     }
 
     return (
-        <>
-            <h1>Match found</h1>
-            <Progress duration={location.state.time} />
+        <div className={styles.container}>
+            <div className={styles.content}>
+                <h1 className={styles.title}>Match found</h1>
+                <Progress duration={location.state.time} />
 
-            {!waiting && (
-                <>
-                    <Button data-testid="accept" onClick={accept}>Accept match</Button>
-                    <Button data-testid="decline" onClick={decline}>Decline match</Button>
-                </>
-            )}
+                {!waiting && (
+                    <div className={styles.buttons}>
+                        <Button data-testid="accept" onClick={accept}>Accept match</Button>
+                        <Button data-testid="decline" onClick={decline}>Decline match</Button>
+                    </div>
+                )}
 
-            {waiting && <p>Waiting for other players...</p>}
-        </>
+                {waiting && <p className={styles.wait}>Waiting for other players...</p>}
+            </div>
+        </div>
     );
 }
 
