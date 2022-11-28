@@ -16,6 +16,7 @@ function MatchFound({ server }: Props) {
     useEffect(function() {
         server.on(Response.MatchDeclined, () => navigate('/'));
         server.on(Response.WaitOtherPlayers, () => setWaiting(true));
+        server.on(Response.ChooseCards, () => navigate('/game'));
     }, [navigate, server]);
 
     function accept() {
@@ -29,7 +30,6 @@ function MatchFound({ server }: Props) {
     return (
         <>
             <h1>Match found</h1>
-
             <Progress duration={location.state.time} />
 
             {!waiting && (

@@ -8,6 +8,8 @@ export enum Response {
     WaitForMatch = "wait_for_match",
     MatchFound = "match_found",
     MatchDeclined = "match_denied",
+    WaitOtherPlayers = "wait_other_players",
+    ChooseCards = "choose_cards",
 }
 
 export type Payload = Record<string, any>
