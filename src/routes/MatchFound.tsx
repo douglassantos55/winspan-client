@@ -1,5 +1,5 @@
 import styles from "./MatchFound.module.css";
-import { Command, Response, Server } from "../server";
+import { Command, Payload, Response, Server } from "../server";
 import Button from '../components/Button';
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -17,7 +17,10 @@ function MatchFound({ server }: Props) {
     useEffect(function() {
         const declinedId = server.on(Response.MatchDeclined, () => navigate('/'));
         const waitId = server.on(Response.WaitOtherPlayers, () => setWaiting(true));
-        const gameStartId = server.on(Response.ChooseCards, () => navigate('/game'));
+
+        const gameStartId = server.on(Response.ChooseCards, function(payload: Payload) {
+            navigate('/game', { state: payload });
+        });
 
         return function() {
             server.off(Response.MatchDeclined, [declinedId]);

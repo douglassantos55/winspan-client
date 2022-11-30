@@ -2,6 +2,8 @@ export enum Command {
     QueueUp = "Queue.Add",
     AcceptMatch = "Matchmaker.Accept",
     DeclineMatch = "Matchmaker.Decline",
+    ChooseBirds = "Game.ChooseBirds",
+    DiscardFood = "Game.DiscardFood",
 }
 
 export enum Response {

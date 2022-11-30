@@ -16,6 +16,6 @@ export default createHashRouter([
     },
     {
         path: "/game",
-        element: <Game />,
+        element: <Game server={server} />,
     }
 ]);

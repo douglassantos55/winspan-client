@@ -1,7 +1,4 @@
-export type Bird = {
-    ID: number;
-    Name: string;
-}
+import { Bird } from "../types";
 
 type Props = {
     bird: Bird;
@@ -9,10 +6,10 @@ type Props = {
     onClick: () => void;
 }
 
-function Card(props: Props) {
+function Card({ bird, ...props }: Props) {
     return (
         <div {...props}>
-            <h2>{props.bird.Name}</h2>
+            <h2>{bird.Name}</h2>
         </div>
     );
 }

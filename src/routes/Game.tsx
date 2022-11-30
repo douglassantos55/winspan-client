@@ -1,14 +1,71 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
-import Card, { Bird } from "../components/Card";
+import Button from "../components/Button";
+import Card from "../components/Card";
+import Food from "../components/Food";
+import Progress from "../components/Progress";
+import { Command, Server } from "../server";
+import { Bird, FoodType } from "../types";
 
-function Game() {
+type Props = {
+    server: Server;
+}
+
+function Game({ server }: Props) {
     const { state } = useLocation();
-    const { birds } = state;
-    const [selected, setSelected] = useState<number[]>([]);
+
+    const birds: Bird[] = state.Birds;
+    const food: Record<FoodType, number> = state.Food;
+
+    const [currState, setCurrState] = useState("birds");
+    const [available, setAvailable] = useState<FoodType[]>([]);
+
+    const [selectedBirds, setSelectedBirds] = useState<number[]>([]);
+    const [selectedFood, setSelectedFood] = useState<number[]>([]);
+
+    useEffect(function() {
+        for (const type in food) {
+            const currType: FoodType = parseInt(type);
+            for (let i = 0; i < food[currType]; i++) {
+                setAvailable(curr => ([...curr, currType]));
+            }
+        }
+    }, [food]);
+
+    function choose() {
+        if (currState === "birds") {
+            server.send({ Method: Command.ChooseBirds, Params: selectedBirds });
+            setCurrState("food");
+        } else {
+            const gathered: Partial<Record<FoodType, number>> = {};
+            for (let i = 0; i < selectedFood.length; i++) {
+                const foodType = available[i] as FoodType;
+                const current = gathered[foodType];
+                if (current === undefined) {
+                    gathered[foodType] = 1;
+                } else {
+                    gathered[foodType] = current + 1;
+                }
+            }
+            server.send({ Method: Command.DiscardFood, Params: gathered });
+        }
+    }
+
+    function toggleFood(index: number) {
+        setSelectedFood(function(actual: number[]) {
+            if (actual.includes(index)) {
+                const idx = actual.indexOf(index);
+                return [
+                    ...actual.slice(0, idx),
+                    ...actual.slice(idx + 1),
+                ];
+            }
+            return [...actual, index];
+        });
+    }
 
     function toggleBird(id: number) {
-        setSelected(function(actual: number[]) {
+        setSelectedBirds(function(actual: number[]) {
             if (actual.includes(id)) {
                 const idx = actual.indexOf(id);
                 return [
@@ -22,7 +79,7 @@ function Game() {
 
     return (
         <div>
-            <h1>Choose which birds to keep</h1>
+            <h1>{currState === "birds" ? "Choose which birds to keep" : "Choose which food to discard"}</h1>
 
             {birds.map(function(bird: Bird) {
                 return (
@@ -31,10 +88,25 @@ function Game() {
                         key={bird.ID}
                         data-testid="card"
                         onClick={() => toggleBird(bird.ID)}
-                        disabled={selected.includes(bird.ID)}
+                        disabled={currState === "food" || selectedBirds.includes(bird.ID)}
                     />
                 );
             })}
+
+            {available.map(function(_, idx: number) {
+                return (
+                    <Food
+                        key={idx}
+                        data-testid="food"
+                        onClick={() => toggleFood(idx)}
+                        disabled={currState === "birds" || selectedFood.includes(idx)}
+                    />
+                )
+            })}
+
+            <Progress duration={state.time} />
+
+            <Button data-testid="choose" onClick={choose}>Choose {currState}</Button>
         </div>
     );
 }

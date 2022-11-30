@@ -1,17 +1,21 @@
 import { fireEvent, render } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import Game from '../routes/Game';
+import { Command, ServerImpl } from '../server';
+import fakeSocket from './_fakeSocket';
 
 describe('Game', function() {
+    const server = new ServerImpl(fakeSocket);
+
     const state = {
-        birds: [
+        Birds: [
             { ID: 1, Name: 'Bird 1' },
             { ID: 2, Name: 'Bird 2' },
             { ID: 3, Name: 'Bird 3' },
             { ID: 4, Name: 'Bird 4' },
             { ID: 5, Name: 'Bird 5' },
         ],
-        food: {
+        Food: {
             0: 2,
             2: 1,
             3: 1,
@@ -19,11 +23,24 @@ describe('Game', function() {
         }
     }
 
-
-    it('choose cards', function() {
+    it('displays food', function() {
         const el = render(
             <MemoryRouter initialEntries={[{ state }]}>
-                <Game />
+                <Game server={server} />
+            </MemoryRouter>
+        );
+        const food = el.getAllByTestId('food');
+        expect(food.length).toBe(5);
+
+        for (let i = 0; i < food.length; i++) {
+            expect(food[i].hasAttribute('disabled')).toBe(true);
+        }
+    });
+
+    it('displays cards', function() {
+        const el = render(
+            <MemoryRouter initialEntries={[{ state }]}>
+                <Game server={server} />
             </MemoryRouter>
         );
 
@@ -38,7 +55,7 @@ describe('Game', function() {
     it('toggles cards', function() {
         const el = render(
             <MemoryRouter initialEntries={[{ state }]}>
-                <Game />
+                <Game server={server} />
             </MemoryRouter>
         );
 
@@ -55,5 +72,74 @@ describe('Game', function() {
 
         expect(cards[0].hasAttribute('disabled')).toBe(false);
         expect(cards[3].hasAttribute('disabled')).toBe(false);
+    });
+
+    it('chooses cards', function() {
+        const el = render(
+            <MemoryRouter initialEntries={[{ state }]}>
+                <Game server={server} />
+            </MemoryRouter>
+        );
+
+        const spy = jest.spyOn(server, 'send');
+        const cards = el.getAllByTestId('card');
+
+        fireEvent.click(cards[0]);
+        fireEvent.click(cards[3]);
+
+        fireEvent.click(el.getByTestId('choose'));
+        expect(spy).toHaveBeenCalledWith({ Method: Command.ChooseBirds, Params: [1, 4] });
+
+        expect(el.container).toHaveTextContent("Choose which food to discard");
+
+        const food = el.getAllByTestId('food');
+        for (let i = 0; i < food.length; i++) {
+            expect(food[i].hasAttribute('disabled')).toBe(false);
+        }
+    });
+
+    it('toggles food', function() {
+        const el = render(
+            <MemoryRouter initialEntries={[{ state }]}>
+                <Game server={server} />
+            </MemoryRouter>
+        );
+
+        fireEvent.click(el.getByTestId('choose'));
+        const food = el.getAllByTestId('food');
+
+        fireEvent.click(food[0]);
+        fireEvent.click(food[1]);
+        fireEvent.click(food[2]);
+
+        expect(food[0].hasAttribute('disabled')).toBe(true);
+        expect(food[1].hasAttribute('disabled')).toBe(true);
+        expect(food[2].hasAttribute('disabled')).toBe(true);
+
+        fireEvent.click(food[0]);
+        fireEvent.click(food[1]);
+        fireEvent.click(food[2]);
+
+        expect(food[0].hasAttribute('disabled')).toBe(false);
+        expect(food[1].hasAttribute('disabled')).toBe(false);
+        expect(food[2].hasAttribute('disabled')).toBe(false);
+    });
+
+    it('chooses food', function() {
+        const el = render(
+            <MemoryRouter initialEntries={[{ state }]}>
+                <Game server={server} />
+            </MemoryRouter>
+        );
+
+        const spy = jest.spyOn(server, 'send');
+        fireEvent.click(el.getByTestId('choose'));
+
+        const food = el.getAllByTestId('food');
+        fireEvent.click(food[0]);
+        fireEvent.click(food[1]);
+
+        fireEvent.click(el.getByTestId('choose'));
+        expect(spy).toHaveBeenCalledWith({ Method: Command.DiscardFood, Params: { 0: 2 } });
     });
 });
