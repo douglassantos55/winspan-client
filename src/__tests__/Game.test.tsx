@@ -174,4 +174,15 @@ describe('Game', function() {
         act(() => fakeSocket.dispatch('test', { Type: Response.GameCanceled }));
         expect(mockNavigate).toHaveBeenCalledWith('/');
     });
+
+    it('waits other players', function() {
+        const el = render(
+            <MemoryRouter initialEntries={[{ state }]}>
+                <Game server={server} />
+            </MemoryRouter>
+        );
+
+        act(() => fakeSocket.dispatch('test', { Type: Response.WaitOtherPlayers }));
+        expect(el.container).toHaveTextContent('Waiting other players');
+    });
 });

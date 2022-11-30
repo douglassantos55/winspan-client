@@ -36,9 +36,14 @@ function Game({ server }: Props) {
             navigate('/');
         });
 
+        const waitId = server.on(Response.WaitOtherPlayers, function() {
+            setCurrState('wait');
+        });
+
         return function() {
             server.off(Response.DiscardFood, [discardId]);
             server.off(Response.GameCanceled, [cancelId]);
+            server.off(Response.WaitOtherPlayers, [waitId]);
         }
     }, [server, navigate]);
 
@@ -136,7 +141,9 @@ function Game({ server }: Props) {
                 <Progress duration={state.Time} />
             </div>
 
-            <Button data-testid="choose" onClick={choose}>Choose {currState}</Button>
+
+            {currState != 'wait' && <Button data-testid="choose" onClick={choose}>Choose {currState}</Button>}
+            {currState == 'wait' && <p className={styles.wait}>Waiting other players...</p>}
         </div>
     );
 }
