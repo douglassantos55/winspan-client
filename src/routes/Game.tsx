@@ -25,12 +25,14 @@ function Game({ server }: Props) {
     const [selectedFood, setSelectedFood] = useState<number[]>([]);
 
     useEffect(function() {
+        const arr = [];
         for (const type in food) {
             const currType: FoodType = parseInt(type);
             for (let i = 0; i < food[currType]; i++) {
-                setAvailable(curr => ([...curr, currType]));
+                arr.push(currType);
             }
         }
+        setAvailable(arr);
     }, [food]);
 
     function choose() {
