@@ -97,10 +97,11 @@ function Game({ server }: Props) {
             </div>
 
             <div className={styles.foodContainer}>
-                {available.map(function(_, idx: number) {
+                {available.map(function(type: FoodType, idx: number) {
                     return (
                         <Food
                             key={idx}
+                            type={type}
                             data-testid="food"
                             onClick={() => toggleFood(idx)}
                             disabled={currState === "birds" || selectedFood.includes(idx)}

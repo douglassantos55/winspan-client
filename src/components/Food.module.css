@@ -1,0 +1,15 @@
+.container {
+    width: 4rem;
+    height: 4rem;
+    display: flex;
+    cursor: pointer;
+    align-items: center;
+    justify-content: center;
+    border-radius: 100%;
+    border: 1px solid #eee;
+    box-shadow: 0 0.1rem 0.2rem rgba(0, 0, 0, 0.2);
+}
+
+.container[disabled] {
+    opacity: 0.5;
+}
