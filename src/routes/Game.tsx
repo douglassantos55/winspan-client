@@ -6,6 +6,7 @@ import Food from "../components/Food";
 import Progress from "../components/Progress";
 import { Command, Server } from "../server";
 import { Bird, FoodType } from "../types";
+import styles from "./Game.module.css";
 
 type Props = {
     server: Server;
@@ -78,31 +79,35 @@ function Game({ server }: Props) {
     }
 
     return (
-        <div>
-            <h1>{currState === "birds" ? "Choose which birds to keep" : "Choose which food to discard"}</h1>
+        <div className={styles.container}>
+            <h1 className={styles.title}>{currState === "birds" ? "Choose which birds to keep" : "Choose which food to discard"}</h1>
 
-            {birds.map(function(bird: Bird) {
-                return (
-                    <Card
-                        bird={bird}
-                        key={bird.ID}
-                        data-testid="card"
-                        onClick={() => toggleBird(bird.ID)}
-                        disabled={currState === "food" || selectedBirds.includes(bird.ID)}
-                    />
-                );
-            })}
+            <div className={styles.cardsContainer}>
+                {birds.map(function(bird: Bird) {
+                    return (
+                        <Card
+                            bird={bird}
+                            key={bird.ID}
+                            data-testid="card"
+                            onClick={() => toggleBird(bird.ID)}
+                            disabled={currState === "food" || selectedBirds.includes(bird.ID)}
+                        />
+                    );
+                })}
+            </div>
 
-            {available.map(function(_, idx: number) {
-                return (
-                    <Food
-                        key={idx}
-                        data-testid="food"
-                        onClick={() => toggleFood(idx)}
-                        disabled={currState === "birds" || selectedFood.includes(idx)}
-                    />
-                )
-            })}
+            <div className={styles.foodContainer}>
+                {available.map(function(_, idx: number) {
+                    return (
+                        <Food
+                            key={idx}
+                            data-testid="food"
+                            onClick={() => toggleFood(idx)}
+                            disabled={currState === "birds" || selectedFood.includes(idx)}
+                        />
+                    )
+                })}
+            </div>
 
             <Progress duration={state.time} />
 

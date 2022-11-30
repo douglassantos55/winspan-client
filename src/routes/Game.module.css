@@ -1,0 +1,30 @@
+.container {
+    height: 100vh;
+    display: flex;
+    font-size: 1.6rem;
+    align-items: center;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.title {
+    text-align: center;
+    font-size: 4rem;
+}
+
+.cardsContainer {
+    gap: 2rem;
+    display: flex;
+    margin-top: 6rem;
+    align-items: center;
+    justify-content: center;
+}
+
+.foodContainer {
+    gap: 2rem;
+    display: flex;
+    margin-top: 4rem;
+    margin-bottom: 10rem;
+    align-items: center;
+    justify-content: center;
+}
