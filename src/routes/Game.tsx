@@ -40,7 +40,7 @@ function Game({ server }: Props) {
             server.off(Response.DiscardFood, [discardId]);
             server.off(Response.GameCanceled, [cancelId]);
         }
-    }, []);
+    }, [server, navigate]);
 
     useEffect(function() {
         const arr = [];
@@ -60,7 +60,7 @@ function Game({ server }: Props) {
         } else {
             const gathered: Partial<Record<FoodType, number>> = {};
             for (let i = 0; i < selectedFood.length; i++) {
-                const foodType = available[i] as FoodType;
+                const foodType = available[selectedFood[i]] as FoodType;
                 const current = gathered[foodType];
                 if (current === undefined) {
                     gathered[foodType] = 1;
