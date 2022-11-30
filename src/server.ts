@@ -12,6 +12,8 @@ export enum Response {
     MatchDeclined = "match_denied",
     WaitOtherPlayers = "wait_other_players",
     ChooseCards = "choose_cards",
+    DiscardFood = "discard_food",
+    GameCanceled = "game_canceled",
 }
 
 export type Payload = Record<string, any>

@@ -53,8 +53,10 @@ describe('MatchFound', function() {
             <MatchFound server={server} />
         </MemoryRouter>);
 
-        act(() => fakeSocket.dispatch('test', { Type: Response.ChooseCards }));
-        expect(mockNavigate).toHaveBeenCalledWith('/game');
+        const payload = { Birds: [], Food: {}, Time: 10 };
+        act(() => fakeSocket.dispatch('test', { Type: Response.ChooseCards, Payload: payload }));
+
+        expect(mockNavigate).toHaveBeenCalledWith('/game', { state: payload });
     });
 
     it('redirects when match is declined', function() {

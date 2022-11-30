@@ -1,8 +1,16 @@
-import { fireEvent, render } from '@testing-library/react';
+import { act, fireEvent, render } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import Game from '../routes/Game';
-import { Command, ServerImpl } from '../server';
+import { Command, Response, ServerImpl } from '../server';
 import fakeSocket from './_fakeSocket';
+
+const mockNavigate = jest.fn();
+jest.mock('react-router-dom', function() {
+    return {
+        ...jest.requireActual('react-router-dom'),
+        useNavigate: () => mockNavigate,
+    };
+});
 
 describe('Game', function() {
     const server = new ServerImpl(fakeSocket);
@@ -89,7 +97,16 @@ describe('Game', function() {
 
         fireEvent.click(el.getByTestId('choose'));
         expect(spy).toHaveBeenCalledWith({ Method: Command.ChooseBirds, Params: [1, 4] });
+    });
 
+    it('allows choosing food', function() {
+        const el = render(
+            <MemoryRouter initialEntries={[{ state }]}>
+                <Game server={server} />
+            </MemoryRouter>
+        );
+
+        act(() => fakeSocket.dispatch('test', { Type: Response.DiscardFood, Payload: 3 }));
         expect(el.container).toHaveTextContent("Choose which food to discard");
 
         const food = el.getAllByTestId('food');
@@ -105,24 +122,28 @@ describe('Game', function() {
             </MemoryRouter>
         );
 
-        fireEvent.click(el.getByTestId('choose'));
+        act(() => fakeSocket.dispatch('test', { Type: Response.DiscardFood, Payload: 3 }));
         const food = el.getAllByTestId('food');
 
         fireEvent.click(food[0]);
         fireEvent.click(food[1]);
         fireEvent.click(food[2]);
+        fireEvent.click(food[3]);
 
         expect(food[0].hasAttribute('disabled')).toBe(true);
         expect(food[1].hasAttribute('disabled')).toBe(true);
         expect(food[2].hasAttribute('disabled')).toBe(true);
+        expect(food[3].hasAttribute('disabled')).toBe(false);
 
         fireEvent.click(food[0]);
         fireEvent.click(food[1]);
         fireEvent.click(food[2]);
+        fireEvent.click(food[3]);
 
         expect(food[0].hasAttribute('disabled')).toBe(false);
         expect(food[1].hasAttribute('disabled')).toBe(false);
         expect(food[2].hasAttribute('disabled')).toBe(false);
+        expect(food[3].hasAttribute('disabled')).toBe(true);
     });
 
     it('chooses food', function() {
@@ -133,7 +154,7 @@ describe('Game', function() {
         );
 
         const spy = jest.spyOn(server, 'send');
-        fireEvent.click(el.getByTestId('choose'));
+        act(() => fakeSocket.dispatch('test', { Type: Response.DiscardFood, Payload: 2 }));
 
         const food = el.getAllByTestId('food');
         fireEvent.click(food[0]);
@@ -141,5 +162,16 @@ describe('Game', function() {
 
         fireEvent.click(el.getByTestId('choose'));
         expect(spy).toHaveBeenCalledWith({ Method: Command.DiscardFood, Params: { 0: 2 } });
+    });
+
+    it('redirects after game is cancelled', function() {
+        render(
+            <MemoryRouter initialEntries={[{ state }]}>
+                <Game server={server} />
+            </MemoryRouter>
+        );
+
+        act(() => fakeSocket.dispatch('test', { Type: Response.GameCanceled }));
+        expect(mockNavigate).toHaveBeenCalledWith('/');
     });
 });

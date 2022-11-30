@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import Button from "../components/Button";
 import Card from "../components/Card";
 import Food from "../components/Food";
 import Progress from "../components/Progress";
-import { Command, Server } from "../server";
+import { Command, Response, Server } from "../server";
 import { Bird, FoodType } from "../types";
 import styles from "./Game.module.css";
 
@@ -13,16 +13,34 @@ type Props = {
 }
 
 function Game({ server }: Props) {
+    const navigate = useNavigate();
     const { state } = useLocation();
 
     const birds: Bird[] = state.Birds;
     const food: Record<FoodType, number> = state.Food;
 
+    const [max, setMax] = useState(0);
     const [currState, setCurrState] = useState("birds");
     const [available, setAvailable] = useState<FoodType[]>([]);
 
     const [selectedBirds, setSelectedBirds] = useState<number[]>([]);
     const [selectedFood, setSelectedFood] = useState<number[]>([]);
+
+    useEffect(function() {
+        const discardId = server.on(Response.DiscardFood, function(payload: number) {
+            setMax(payload);
+            setCurrState('food')
+        });
+
+        const cancelId = server.on(Response.GameCanceled, function() {
+            navigate('/');
+        });
+
+        return function() {
+            server.off(Response.DiscardFood, [discardId]);
+            server.off(Response.GameCanceled, [cancelId]);
+        }
+    }, []);
 
     useEffect(function() {
         const arr = [];
@@ -62,8 +80,10 @@ function Game({ server }: Props) {
                     ...actual.slice(0, idx),
                     ...actual.slice(idx + 1),
                 ];
+            } else if (actual.length < max) {
+                return [...actual, index];
             }
-            return [...actual, index];
+            return actual;
         });
     }
 
@@ -112,7 +132,9 @@ function Game({ server }: Props) {
                 })}
             </div>
 
-            <Progress duration={state.time} />
+            <div className={styles.progressContainer}>
+                <Progress duration={state.Time} />
+            </div>
 
             <Button data-testid="choose" onClick={choose}>Choose {currState}</Button>
         </div>
