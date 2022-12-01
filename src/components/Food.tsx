@@ -3,15 +3,21 @@ import styles from "./Food.module.css";
 
 type Props = {
     type: FoodType;
-    disabled: boolean;
+    disabled?: boolean;
+    selected?: boolean;
     onClick: () => void;
 }
 
-function Food(props: Props) {
+function Food({ type, selected, ...props }: Props) {
+    let className = styles.container;
+    if (selected) {
+        className += ' selected';
+    }
+
     return (
-        <div {...props} className={styles.container}>
-            {props.type}
-        </div>
+        <button {...props} className={className}>
+            {type}
+        </button>
     );
 }
 

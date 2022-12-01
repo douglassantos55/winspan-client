@@ -8,10 +8,13 @@
     box-shadow: 0 0.2rem 0.5rem rgba(0, 0, 0, 0.2);
 }
 
-.container[disabled] {
+.container.selected {
     opacity: 0.7;
 }
 
+.container[disabled] {
+    pointer-events: none;
+}
 
 .imageContainer {
     margin: -1rem -1rem 0;

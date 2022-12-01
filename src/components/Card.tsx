@@ -3,13 +3,19 @@ import styles from "./Card.module.css";
 
 type Props = {
     bird: Bird;
-    disabled: boolean;
+    disabled?: boolean;
+    selected?: boolean;
     onClick: () => void;
 }
 
-function Card({ bird, ...props }: Props) {
+function Card({ bird, selected, ...props }: Props) {
+    let className = styles.container;
+    if (selected) {
+        className += " selected";
+    }
+
     return (
-        <div className={styles.container} {...props}>
+        <div className={className} {...props}>
             <figure className={styles.imageContainer}>
                 <img src="http://placeimg.com/100/300/any" className={styles.image} alt={bird.Name} />
             </figure>

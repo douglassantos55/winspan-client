@@ -13,3 +13,7 @@
 .container[disabled] {
     opacity: 0.5;
 }
+
+.container.selected {
+    opacity: 0.5;
+}
