@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import Button from "../../components/Button";
 import Card from "../../components/Card";
 import Food from "../../components/Food";
@@ -9,14 +9,12 @@ import { Bird, FoodType } from "../../types";
 import styles from "./InitialResources.module.css";
 
 type Props = {
-    birds: Bird[];
-    timer: number;
     server: Server;
-    food: Partial<Record<FoodType, number>>;
 }
 
-function InitialResources({ server, food, birds, timer }: Props) {
-    const availableFood = _parseFood(food);
+function InitialResources({ server }: Props) {
+    const { state } = useLocation();
+    const availableFood = _parseFood(state.Food);
 
     const navigate = useNavigate();
     const [title, setTitle] = useState("Choose which birds to keep");
@@ -36,10 +34,15 @@ function InitialResources({ server, food, birds, timer }: Props) {
             setTitle("Waiting other players");
         });
 
+        const startTurnId = server.on(Response.StartTurn, () => navigate('/game/play'));
+        const waitTurnId = server.on(Response.WaitTurn, () => navigate('/game/play'));
+
         return function() {
             server.off(Response.DiscardFood, [discardId]);
             server.off(Response.GameCanceled, [cancelId]);
             server.off(Response.WaitOtherPlayers, [waitId]);
+            server.off(Response.StartTurn, [startTurnId]);
+            server.off(Response.WaitTurn, [waitTurnId]);
         }
     }, [navigate, server, selectedBirds]);
 
@@ -116,7 +119,7 @@ function InitialResources({ server, food, birds, timer }: Props) {
             <h1 className={styles.title}>{title}</h1>
 
             <div className={styles.cardsContainer}>
-                {birds.map(function(bird: Bird) {
+                {state.Birds.map(function(bird: Bird) {
                     return (
                         <Card
                             bird={bird}
@@ -145,7 +148,7 @@ function InitialResources({ server, food, birds, timer }: Props) {
             </div>
 
             <div className={styles.progressContainer}>
-                <Progress duration={timer} />
+                <Progress duration={state.Time} />
             </div>
 
             <Button data-testid="choose" onClick={select} disabled={selectedBirds.length === 0 || selectedFood.length === 0}>Select</Button>

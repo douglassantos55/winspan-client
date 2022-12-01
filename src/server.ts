@@ -14,6 +14,8 @@ export enum Response {
     ChooseCards = "choose_cards",
     DiscardFood = "discard_food",
     GameCanceled = "game_canceled",
+    StartTurn = "start_turn",
+    WaitTurn = "wait_turn",
 }
 
 export type Payload = Record<string, any>
