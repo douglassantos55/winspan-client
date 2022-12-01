@@ -11,7 +11,7 @@ type Props = {
 function Food({ type, selected, ...props }: Props) {
     let className = styles.container;
     if (selected) {
-        className += ' selected';
+        className += ' ' + styles.selected;
     }
 
     return (
