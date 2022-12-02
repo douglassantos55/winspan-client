@@ -56,7 +56,7 @@ describe('MatchFound', function() {
         const payload = { Birds: [], Food: {}, Time: 10 };
         act(() => fakeSocket.dispatch('test', { Type: Response.ChooseCards, Payload: payload }));
 
-        expect(mockNavigate).toHaveBeenCalledWith('/game', { state: payload });
+        expect(mockNavigate).toHaveBeenCalledWith('/game/initial-resources', { state: payload });
     });
 
     it('redirects when match is declined', function() {
