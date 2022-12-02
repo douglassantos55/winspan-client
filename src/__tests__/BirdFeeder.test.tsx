@@ -8,4 +8,9 @@ describe("Bird feeder", function() {
 
         expect(el.getAllByTestId('food')).toHaveLength(3);
     });
+
+    it("renders no food", function() {
+        const el = render(<BirdFeeder food={{}} />);
+        expect(el.queryAllByTestId('food')).toHaveLength(0);
+    });
 });

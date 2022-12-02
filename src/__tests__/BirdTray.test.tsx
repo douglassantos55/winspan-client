@@ -11,4 +11,9 @@ describe("Bird Tray", function() {
         const el = render(<BirdTray birds={birds} />);
         expect(el.getAllByTestId('bird')).toHaveLength(2);
     });
+
+    it("renders no birds", function() {
+        const el = render(<BirdTray birds={[]} />);
+        expect(el.queryAllByTestId('bird')).toHaveLength(0);
+    });
 });
