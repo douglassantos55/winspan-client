@@ -1,12 +1,17 @@
 import styles from "./BirdTray.module.css";
 import Card from "../../components/Card";
+import { Bird } from "../../types";
 
-function BirdTray() {
+type Props = {
+    birds: Bird[];
+}
+
+function BirdTray({ birds }: Props) {
     return (
         <div className={styles.container}>
-            <Card bird={{ ID: 1, Name: "Bird 1" }} />
-            <Card bird={{ ID: 2, Name: "Bird 2" }} />
-            <Card bird={{ ID: 3, Name: "Bird 3" }} />
+            {birds.map(function(bird: Bird) {
+                return <Card key={bird.ID} bird={bird} data-testid="bird" />;
+            })}
         </div>
     );
 }

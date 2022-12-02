@@ -17,8 +17,8 @@ function Play() {
                 <Board rows={state.Board} />
 
                 <div className={styles.sidebar}>
-                    <BirdTray />
                     <BirdFeeder />
+                    <BirdTray birds={state.BirdTray} />
                 </div>
             </div>
 
