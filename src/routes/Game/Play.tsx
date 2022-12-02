@@ -1,3 +1,4 @@
+import { useLocation } from "react-router-dom";
 import BirdFeeder from "./BirdFeeder";
 import BirdTray from "./BirdTray";
 import Board from "./Board";
@@ -17,8 +18,8 @@ function Play() {
                 <Board rows={state.Board} />
 
                 <div className={styles.sidebar}>
-                    <BirdFeeder />
                     <BirdTray birds={state.BirdTray} />
+                    <BirdFeeder food={state.BirdFeeder} />
                 </div>
             </div>
 
