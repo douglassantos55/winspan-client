@@ -34,8 +34,13 @@ function InitialResources({ server }: Props) {
             setTitle("Waiting other players");
         });
 
-        const startTurnId = server.on(Response.StartTurn, () => navigate('/game/play'));
-        const waitTurnId = server.on(Response.WaitTurn, () => navigate('/game/play'));
+        const startTurnId = server.on(Response.StartTurn, function(payload) {
+            navigate('/game/play', { state: payload });
+        });
+
+        const waitTurnId = server.on(Response.WaitTurn, function(payload) {
+            navigate('/game/play', { state: payload });
+        });
 
         return function() {
             server.off(Response.DiscardFood, [discardId]);

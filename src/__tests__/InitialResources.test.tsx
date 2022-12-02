@@ -186,8 +186,8 @@ describe('InitialResources', function() {
             <InitialResources server={server} />
         </MemoryRouter>);
 
-        act(() => fakeSocket.dispatch('test', { Type: Response.StartTurn }));
-        expect(mockNavigate).toHaveBeenCalledWith('/game/play');
+        act(() => fakeSocket.dispatch('test', { Type: Response.StartTurn, Payload: true }));
+        expect(mockNavigate).toHaveBeenCalledWith('/game/play', { state: true });
     });
 
     it('wait turn', function() {
@@ -195,7 +195,7 @@ describe('InitialResources', function() {
             <InitialResources server={server} />
         </MemoryRouter>);
 
-        act(() => fakeSocket.dispatch('test', { Type: Response.WaitTurn }));
-        expect(mockNavigate).toHaveBeenCalledWith('/game/play');
+        act(() => fakeSocket.dispatch('test', { Type: Response.WaitTurn, Payload: true }));
+        expect(mockNavigate).toHaveBeenCalledWith('/game/play', { state: true });
     });
 });
