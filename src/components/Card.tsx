@@ -5,7 +5,7 @@ type Props = {
     bird: Bird;
     disabled?: boolean;
     selected?: boolean;
-    onClick: () => void;
+    onClick?: () => void;
 }
 
 function Card({ bird, selected, ...props }: Props) {

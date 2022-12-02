@@ -5,7 +5,7 @@ type Props = {
     type: FoodType;
     disabled?: boolean;
     selected?: boolean;
-    onClick: () => void;
+    onClick?: () => void;
 }
 
 function Food({ type, selected, ...props }: Props) {

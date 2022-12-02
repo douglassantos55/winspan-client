@@ -1,0 +1,33 @@
+.container {
+    padding: 1rem;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    padding-bottom: 2rem;
+    justify-content: space-between;
+}
+
+.round,
+.points {
+    font-size: 2rem;
+}
+
+.main {
+    gap: 3rem;
+    display: flex;
+}
+
+.sidebar {
+    gap: 2rem;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+}
+
+.footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}

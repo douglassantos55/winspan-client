@@ -1,6 +1,7 @@
 .container {
     width: 4rem;
     height: 4rem;
+    font-size: 1.6rem;
     background: #f3f3d9;
     display: flex;
     cursor: pointer;

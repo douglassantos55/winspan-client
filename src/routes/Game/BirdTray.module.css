@@ -1,0 +1,12 @@
+.container {
+    gap: 1rem;
+    width: 100%;
+    display: flex;
+    padding: 1rem;
+    align-items: center;
+    border-radius: 1rem;
+    border: 1px solid #ddd;
+    flex-direction: column;
+    justify-content: center;
+    box-shadow: 0 0.5rem 0.5rem rgba(0, 0, 0, 0.2);
+}

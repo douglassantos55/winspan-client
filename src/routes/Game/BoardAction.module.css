@@ -1,0 +1,22 @@
+.container {
+    gap: 1rem;
+    display: flex;
+    align-items: center;
+}
+
+.info {
+    text-align: center;
+}
+
+.name {
+    display: block;
+    font-size: 2rem;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.description {
+    display: block;
+    font-size: 1.7rem;
+    text-transform: uppercase;
+}

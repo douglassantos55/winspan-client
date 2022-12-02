@@ -1,12 +1,11 @@
-import React from "react";
 import { createHashRouter } from "react-router-dom";
 
 import server from "./server";
 import Queue from "./routes/Home";
-const Game = React.lazy(() => import("./routes/Game"));
-const Play = React.lazy(() => import("./routes/Game/Play"));
-const MatchFound = React.lazy(() => import("./routes/MatchFound"));
-const InitialResources = React.lazy(() => import("./routes/Game/InitialResources"));
+import Game from "./routes/Game";
+import Play from "./routes/Game/Play";
+import MatchFound from "./routes/MatchFound";
+import InitialResources from "./routes/Game/InitialResources";
 
 export default createHashRouter([
     {
@@ -23,11 +22,11 @@ export default createHashRouter([
         element: <Game server={server} />,
         children: [
             {
-                path: "/initial-resources",
+                path: "initial-resources",
                 element: <InitialResources server={server} />,
             },
             {
-                path: "/play",
+                path: "play",
                 element: <Play />,
             }
         ],

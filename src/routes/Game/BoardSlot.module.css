@@ -1,0 +1,18 @@
+.slot {
+    gap: 2rem;
+    display: flex;
+    align-items: center;
+    border-radius: 1rem;
+    border: 1px solid #ddd;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.icon {
+}
+
+.resources {
+    gap: 1rem;
+    display: flex;
+    align-items: center;
+}
