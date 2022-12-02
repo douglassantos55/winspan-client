@@ -11,3 +11,9 @@ export type Bird = {
     Name: string;
 }
 
+
+export enum Habitat {
+    Forest,
+    Grassland,
+    Wetland,
+}

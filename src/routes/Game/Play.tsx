@@ -5,6 +5,7 @@ import Hand from "./Hand";
 import styles from "./Play.module.css";
 
 function Play() {
+    const { state } = useLocation();
     return (
         <div className={styles.container}>
             <div className={styles.header}>
@@ -13,7 +14,7 @@ function Play() {
             </div>
 
             <div className={styles.main}>
-                <Board />
+                <Board rows={state.Board} />
 
                 <div className={styles.sidebar}>
                     <BirdTray />
