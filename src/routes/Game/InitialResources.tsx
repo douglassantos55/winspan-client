@@ -34,11 +34,7 @@ function InitialResources({ server }: Props) {
             setTitle("Waiting other players");
         });
 
-        const startTurnId = server.on(Response.StartTurn, function(payload) {
-            navigate('/game/play', { state: payload });
-        });
-
-        const waitTurnId = server.on(Response.WaitTurn, function(payload) {
+        const startRoundId = server.on(Response.GameStarted, function(payload) {
             navigate('/game/play', { state: payload });
         });
 
@@ -46,8 +42,7 @@ function InitialResources({ server }: Props) {
             server.off(Response.DiscardFood, [discardId]);
             server.off(Response.GameCanceled, [cancelId]);
             server.off(Response.WaitOtherPlayers, [waitId]);
-            server.off(Response.StartTurn, [startTurnId]);
-            server.off(Response.WaitTurn, [waitTurnId]);
+            server.off(Response.RoundStarted, [startRoundId]);
         }
     }, [navigate, server, selectedBirds]);
 
