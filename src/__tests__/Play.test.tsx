@@ -12,6 +12,7 @@ describe("Play", function() {
             MaxTurns: 9,
             Duration: 100,
             Board: {},
+            Current: "",
             Birds: [],
             BirdTray: [],
             BirdFeeder: {},
@@ -28,6 +29,7 @@ describe("Play", function() {
             Duration: 100,
             Board: {},
             Birds: [],
+            Current: "",
             BirdTray: [],
             BirdFeeder: {},
             Players: [],
@@ -43,6 +45,7 @@ describe("Play", function() {
             Duration: 100,
             Board: {},
             Birds: [],
+            Current: "",
             BirdTray: [],
             BirdFeeder: {},
             Players: [{ ID: "1" }, { ID: "2" }, { ID: "3" }, { ID: "4" }],
@@ -53,5 +56,26 @@ describe("Play", function() {
         </MemoryRouter>);
 
         expect(el.queryAllByTestId('player')).toHaveLength(4);
+    });
+
+    it("highlights current player", function() {
+        const state = {
+            MaxTurns: 9,
+            Duration: 100,
+            Board: {},
+            Birds: [],
+            BirdTray: [],
+            BirdFeeder: {},
+            Current: "2",
+            Players: [{ ID: "1" }, { ID: "2" }],
+        };
+
+        const el = render(<MemoryRouter initialEntries={[{ state }]}>
+            <Play server={server} />
+        </MemoryRouter>);
+
+        const firstPlayer = el.getAllByTestId('player')
+        expect(firstPlayer[0].classList.contains('current')).toBe(false);
+        expect(firstPlayer[1].classList.contains('current')).toBe(true);
     });
 });

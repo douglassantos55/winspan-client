@@ -22,6 +22,7 @@ function Play({ server }: Props) {
     const [points, setPoints] = useState(0);
 
     const [waiting, setWaiting] = useState(false);
+    const [current, setCurrent] = useState(state.Current);
     const [players, setPlayers] = useState(state.Players);
 
     useEffect(function() {
@@ -39,8 +40,12 @@ function Play({ server }: Props) {
 
                 <div className={styles.players}>
                     {players.map(function(player: any) {
+                        let className = styles.player;
+                        if (player.ID == current) {
+                            className += " " + styles.current;
+                        }
                         return (
-                            <div key={player.ID} className={styles.player} data-testid="player">
+                            <div key={player.ID} className={className} data-testid="player">
                                 {player.ID}
                             </div>
                         );
