@@ -16,6 +16,7 @@ export enum Response {
     GameCanceled = "game_canceled",
     GameStarted = "game_started",
     RoundStarted = "round_started",
+    RoundEnded = "round_ended",
     StartTurn = "start_turn",
     WaitTurn = "wait_turn",
 }

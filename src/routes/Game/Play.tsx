@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import Progress from "../../components/Progress";
-import { Response, Server } from "../../server";
+import { Payload, Response, Server } from "../../server";
 import BirdFeeder from "./BirdFeeder";
 import BirdTray from "./BirdTray";
 import Board from "./Board";
@@ -18,25 +18,33 @@ function Play({ server }: Props) {
     const [turn, setTurn] = useState(0);
     const [maxTurns, setMaxTurns] = useState(state.MaxTurns);
 
-    const [round, setRound] = useState(1);
-    const [points, setPoints] = useState(0);
+    const [round, setRound] = useState(state.Round);
 
-    const [waiting, setWaiting] = useState(false);
     const [current, setCurrent] = useState(state.Current);
     const [players, setPlayers] = useState(state.Players);
 
     useEffect(function() {
-        server.on(Response.WaitTurn, () => setWaiting(true));
-        server.on(Response.StartTurn, () => setWaiting(false));
+        server.on(Response.StartTurn, function(payload: Payload) {
+            setTurn(payload.Turn);
+            setCurrent(payload.Player);
+        });
+
+        server.on(Response.WaitTurn, function(payload: Payload) {
+            setCurrent(payload.Player);
+        });
+
+        server.on(Response.RoundStarted, function(payload: Payload) {
+            setTurn(1);
+            setRound(payload.Round);
+            setMaxTurns(payload.Turns);
+            setPlayers(payload.Players)
+        });
     }, [server]);
 
     return (
         <div className={styles.container}>
             <div className={styles.header}>
-                <div className={styles.roundTurn}>
-                    <span className={styles.round}>Round {round}</span>
-                    <span className={styles.turn}>Turn {turn}/{maxTurns}</span>
-                </div>
+                <span className={styles.round}>Round {round}</span>
 
                 <div className={styles.players}>
                     {players.map(function(player: any) {
@@ -52,7 +60,7 @@ function Play({ server }: Props) {
                     })}
                 </div>
 
-                <span className={styles.points}>{points} Points</span>
+                <span className={styles.turn}>Turn {turn}/{maxTurns}</span>
             </div>
 
             <Progress duration={state.Duration} />
