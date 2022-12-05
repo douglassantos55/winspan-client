@@ -181,12 +181,12 @@ describe('InitialResources', function() {
         expect(el.container).toHaveTextContent('Waiting other players');
     });
 
-    it('start game', function() {
+    it('redirects when game starts', function() {
         render(<MemoryRouter initialEntries={[{ state }]}>
             <InitialResources server={server} />
         </MemoryRouter>);
 
-        act(() => fakeSocket.dispatch('test', { Type: Response.GameStarted, Payload: true }));
-        expect(mockNavigate).toHaveBeenCalledWith('/game/play', { state: true });
+        act(() => fakeSocket.dispatch('test', { Type: Response.GameStarted }));
+        expect(mockNavigate).toHaveBeenCalledWith('/game/play');
     });
 });

@@ -34,8 +34,8 @@ function InitialResources({ server }: Props) {
             setTitle("Waiting other players");
         });
 
-        const startRoundId = server.on(Response.GameStarted, function(payload) {
-            navigate('/game/play', { state: payload });
+        const startRoundId = server.on(Response.GameStarted, function() {
+            navigate('/game/play');
         });
 
         return function() {

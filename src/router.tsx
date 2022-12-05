@@ -26,8 +26,8 @@ export default createHashRouter([
                 element: <InitialResources server={server} />,
             },
             {
-                path: "play",
-                element: <Play />,
+                path: "play/:player",
+                element: <Play server={server} />,
             }
         ],
     }
