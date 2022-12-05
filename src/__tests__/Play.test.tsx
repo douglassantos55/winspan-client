@@ -1,175 +1,131 @@
 import { act, render } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import Play from "../routes/Game/Play";
-import { Response, ServerImpl } from "../server";
+import { Command, Response, ServerImpl } from "../server";
 import _fakeSocket from "./_fakeSocket";
 
 describe("Play", function() {
     const server = new ServerImpl(_fakeSocket);
 
-    it("displays current round", function() {
-        const state = {
-            Round: 1,
-            MaxTurns: 9,
-            Duration: 100,
-            Board: {},
-            Current: "",
-            Birds: [],
-            BirdTray: [],
-            BirdFeeder: {},
-            Players: [],
-        };
+    function sendPlayerInfo() {
+        act(() => _fakeSocket.dispatch("test", {
+            Type: Response.PlayerInfo,
+            Payload: {
+                Turn: 1,
+                Round: 1,
+                Current: 2,
+                TurnOrder: [{ ID: 1 }, { ID: 2 }, { ID: 3 }, { ID: 4 }],
+                MaxTurns: 8,
+                Duration: 100,
+                Board: {},
+                Birds: [],
+                BirdTray: [],
+                BirdFeeder: {},
+            },
+        }));
+    }
 
-        const el = render(<MemoryRouter initialEntries={[{ state }]}><Play server={server} /></MemoryRouter>);
+    it("requests player info", function() {
+        const spy = jest.spyOn(server, 'send');
+        render(<MemoryRouter><Play server={server} /></MemoryRouter>);
+
+        expect(spy).toHaveBeenCalledWith({
+            Method: Command.GetPlayerInfo,
+            Params: undefined
+        });
+    });
+
+    it("displays current round", function() {
+        const el = render(<MemoryRouter><Play server={server} /></MemoryRouter>);
+        sendPlayerInfo();
+
         expect(el.container).toHaveTextContent('Round 1');
     });
 
     it("displays current turn", function() {
-        const state = {
-            MaxTurns: 9,
-            Duration: 100,
-            Board: {},
-            Birds: [],
-            Current: "",
-            BirdTray: [],
-            BirdFeeder: {},
-            Players: [],
-        };
+        const el = render(<MemoryRouter><Play server={server} /></MemoryRouter>);
+        sendPlayerInfo();
 
-        const el = render(<MemoryRouter initialEntries={[{ state }]}><Play server={server} /></MemoryRouter>);
-        expect(el.container).toHaveTextContent('Turn 0/9');
+        expect(el.container).toHaveTextContent('Turn 1/8');
     });
 
     it("displays players", function() {
-        const state = {
-            MaxTurns: 9,
-            Duration: 100,
-            Board: {},
-            Birds: [],
-            Current: "",
-            BirdTray: [],
-            BirdFeeder: {},
-            Players: [{ ID: "1" }, { ID: "2" }, { ID: "3" }, { ID: "4" }],
-        };
-
-        const el = render(<MemoryRouter initialEntries={[{ state }]}>
-            <Play server={server} />
-        </MemoryRouter>);
+        const el = render(<MemoryRouter><Play server={server} /></MemoryRouter>);
+        sendPlayerInfo();
 
         expect(el.queryAllByTestId('player')).toHaveLength(4);
     });
 
     it("highlights current player", function() {
-        const state = {
-            MaxTurns: 9,
-            Duration: 100,
-            Board: {},
-            Birds: [],
-            BirdTray: [],
-            BirdFeeder: {},
-            Current: "2",
-            Players: [{ ID: "1" }, { ID: "2" }],
-        };
+        const el = render(<MemoryRouter><Play server={server} /></MemoryRouter>);
+        sendPlayerInfo();
 
-        const el = render(<MemoryRouter initialEntries={[{ state }]}>
-            <Play server={server} />
-        </MemoryRouter>);
-
-        const firstPlayer = el.getAllByTestId('player')
-        expect(firstPlayer[0].classList.contains('current')).toBe(false);
-        expect(firstPlayer[1].classList.contains('current')).toBe(true);
-    });
-
-    it("changes turns", function() {
-        const state = {
-            MaxTurns: 7,
-            Duration: 100,
-            Board: {},
-            Birds: [],
-            BirdTray: [],
-            BirdFeeder: {},
-            Current: "1",
-            Players: [{ ID: "1" }, { ID: "2" }, { ID: "3" }],
-        };
-
-        const el = render(<MemoryRouter initialEntries={[{ state }]}>
-            <Play server={server} />
-        </MemoryRouter>);
-
-        act(() => _fakeSocket.dispatch('test', { Type: Response.StartTurn, Payload: { Duration: 100, Turn: 3, Player: 3 } }));
-        const players = el.getAllByTestId('player')
-
-        expect(el.container).toHaveTextContent("Turn 3/7");
-
-        expect(players[0].classList.contains('current')).toBe(false);
-        expect(players[1].classList.contains('current')).toBe(false);
-        expect(players[2].classList.contains('current')).toBe(true);
-    });
-
-    it("changes current player", function() {
-        const state = {
-            MaxTurns: 9,
-            Duration: 100,
-            Board: {},
-            Birds: [],
-            BirdTray: [],
-            BirdFeeder: {},
-            Current: "1",
-            Players: [{ ID: "1" }, { ID: "2" }, { ID: "3" }],
-        };
-
-        const el = render(<MemoryRouter initialEntries={[{ state }]}>
-            <Play server={server} />
-        </MemoryRouter>);
-
-        act(() => _fakeSocket.dispatch('test', { Type: Response.WaitTurn, Payload: { Player: "2" } }));
-        const players = el.getAllByTestId('player')
+        const players = el.queryAllByTestId('player');
 
         expect(players[0].classList.contains('current')).toBe(false);
         expect(players[1].classList.contains('current')).toBe(true);
         expect(players[2].classList.contains('current')).toBe(false);
+        expect(players[3].classList.contains('current')).toBe(false);
+    });
+
+    it("changes turns", function() {
+        const el = render(<MemoryRouter><Play server={server} /></MemoryRouter>);
+        sendPlayerInfo();
+
+        act(() => _fakeSocket.dispatch('test', {
+            Type: Response.StartTurn,
+            Payload: { Duration: 100, Turn: 3, Player: 3 }
+        }));
+
+        const players = el.getAllByTestId('player')
+        expect(el.container).toHaveTextContent("Turn 3/8");
+
+        expect(players[0].classList.contains('current')).toBe(false);
+        expect(players[1].classList.contains('current')).toBe(false);
+        expect(players[2].classList.contains('current')).toBe(true);
+        expect(players[3].classList.contains('current')).toBe(false);
+    });
+
+    it("changes current player", function() {
+        const el = render(<MemoryRouter><Play server={server} /></MemoryRouter>);
+        sendPlayerInfo();
+
+        act(() => _fakeSocket.dispatch('test', {
+            Type: Response.WaitTurn,
+            Payload: { Turn: 3, Player: 4, Duration: 100 }
+        }));
+
+        const players = el.getAllByTestId('player')
+
+        expect(players[0].classList.contains('current')).toBe(false);
+        expect(players[1].classList.contains('current')).toBe(false);
+        expect(players[2].classList.contains('current')).toBe(false);
+        expect(players[3].classList.contains('current')).toBe(true);
     });
 
     it("changes rounds", function() {
-        const state = {
-            MaxTurns: 9,
-            Duration: 100,
-            Board: {},
-            Birds: [],
-            BirdTray: [],
-            BirdFeeder: {},
-            Current: "1",
-            Players: [{ ID: "1" }, { ID: "2" }, { ID: "3" }],
-        };
+        const el = render(<MemoryRouter><Play server={server} /></MemoryRouter>);
+        sendPlayerInfo();
 
-        const el = render(<MemoryRouter initialEntries={[{ state }]}>
-            <Play server={server} />
-        </MemoryRouter>);
+        act(() => _fakeSocket.dispatch('test', {
+            Type: Response.RoundStarted,
+            Payload: { Players: [], Round: 3, Turns: 6 }
+        }));
 
-        act(() => _fakeSocket.dispatch('test', { Type: Response.RoundStarted, Payload: { Players: [], Round: 2, Turns: 7 } }));
-        expect(el.container).toHaveTextContent("Round 2");
-        expect(el.container).toHaveTextContent("Turn 1/7");
+        expect(el.container).toHaveTextContent("Round 3");
+        expect(el.container).toHaveTextContent("Turn 1/6");
     });
 
     it("changes players order", function() {
-        const state = {
-            MaxTurns: 9,
-            Duration: 100,
-            Board: {},
-            Birds: [],
-            BirdTray: [],
-            BirdFeeder: {},
-            Current: "1",
-            Players: [{ ID: "1" }, { ID: "2" }, { ID: "3" }],
-        };
+        const el = render(<MemoryRouter><Play server={server} /></MemoryRouter>);
+        sendPlayerInfo();
 
-        const el = render(<MemoryRouter initialEntries={[{ state }]}>
-            <Play server={server} />
-        </MemoryRouter>);
+        act(() => _fakeSocket.dispatch('test', {
+            Type: Response.RoundStarted,
+            Payload: { Round: 4, Players: [{ ID: 2 }, { ID: 3 }] }
+        }));
 
-        act(() => _fakeSocket.dispatch('test', { Type: Response.RoundStarted, Payload: { Players: [{ ID: 2 }, { ID: 3 }] } }));
         const players = el.getAllByTestId('player')
-
         expect(players[0]).toHaveTextContent("2");
         expect(players[1]).toHaveTextContent("3");
     });

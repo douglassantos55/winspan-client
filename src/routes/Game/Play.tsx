@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import Progress from "../../components/Progress";
-import { Payload, Response, Server } from "../../server";
+import { Command, Payload, Response, Server } from "../../server";
+import { Bird, FoodType, Habitat } from "../../types";
 import BirdFeeder from "./BirdFeeder";
 import BirdTray from "./BirdTray";
 import Board from "./Board";
@@ -13,17 +14,42 @@ type Props = {
 }
 
 function Play({ server }: Props) {
-    const { state } = useLocation();
+    const { player } = useParams();
 
-    const [turn, setTurn] = useState(0);
-    const [maxTurns, setMaxTurns] = useState(state.MaxTurns);
+    const [birds, setBirds] = useState<Bird[]>([]);
+    const [birdTray, setBirdTray] = useState<Bird[]>([]);
+    const [birdFeeder, setBirdFeeder] = useState<Partial<Record<FoodType, number>>>({});
+    const [board, setBoard] = useState<Partial<Record<Habitat, Array<Bird | null>>>>({});
 
-    const [round, setRound] = useState(state.Round);
-
-    const [current, setCurrent] = useState(state.Current);
-    const [players, setPlayers] = useState(state.Players);
+    const [turn, setTurn] = useState<number>(0);
+    const [round, setRound] = useState<number>(0);
+    const [current, setCurrent] = useState<string>("");
+    const [maxTurns, setMaxTurns] = useState<number>(0);
+    const [duration, setDuration] = useState<number>(0);
+    const [turnOrder, setTurnOrder] = useState([]);
 
     useEffect(function() {
+        server.send({
+            Method: Command.GetPlayerInfo,
+            Params: player
+        })
+    }, [player]);
+
+    useEffect(function() {
+        server.on(Response.PlayerInfo, function(payload: Payload) {
+            setTurn(payload.Turn);
+            setRound(payload.Round);
+            setCurrent(payload.Current);
+            setMaxTurns(payload.MaxTurns);
+            setDuration(payload.Duration);
+            setTurnOrder(payload.TurnOrder);
+
+            setBirds(payload.Birds);
+            setBoard(payload.Board);
+            setBirdTray(payload.BirdTray);
+            setBirdFeeder(payload.BirdFeeder);
+        });
+
         server.on(Response.StartTurn, function(payload: Payload) {
             setTurn(payload.Turn);
             setCurrent(payload.Player);
@@ -37,9 +63,13 @@ function Play({ server }: Props) {
             setTurn(1);
             setRound(payload.Round);
             setMaxTurns(payload.Turns);
-            setPlayers(payload.Players)
+            setTurnOrder(payload.Players)
         });
     }, [server]);
+
+    if (current == "") {
+        return <p>Loading...</p>;
+    }
 
     return (
         <div className={styles.container}>
@@ -47,7 +77,7 @@ function Play({ server }: Props) {
                 <span className={styles.round}>Round {round}</span>
 
                 <div className={styles.players}>
-                    {players.map(function(player: any) {
+                    {turnOrder.map(function(player: any) {
                         let className = styles.player;
                         if (player.ID == current) {
                             className += " " + styles.current;
@@ -63,19 +93,19 @@ function Play({ server }: Props) {
                 <span className={styles.turn}>Turn {turn}/{maxTurns}</span>
             </div>
 
-            <Progress duration={state.Duration} />
+            <Progress duration={duration} />
 
             <div className={styles.main}>
-                <Board rows={state.Board} />
+                <Board rows={board} />
 
                 <div className={styles.sidebar}>
-                    <BirdTray birds={state.BirdTray} />
-                    <BirdFeeder food={state.BirdFeeder} />
+                    <BirdTray birds={birdTray} />
+                    <BirdFeeder food={birdFeeder} />
                 </div>
             </div>
 
             <div className={styles.footer}>
-                <Hand birds={state.Birds} />
+                <Hand birds={birds} />
             </div>
         </div>
     );

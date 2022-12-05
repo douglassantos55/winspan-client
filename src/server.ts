@@ -4,6 +4,7 @@ export enum Command {
     DeclineMatch = "Matchmaker.Decline",
     ChooseBirds = "Game.ChooseBirds",
     DiscardFood = "Game.DiscardFood",
+    GetPlayerInfo = "Game.PlayerInfo",
 }
 
 export enum Response {
@@ -19,6 +20,7 @@ export enum Response {
     RoundEnded = "round_ended",
     StartTurn = "start_turn",
     WaitTurn = "wait_turn",
+    PlayerInfo = "player_info",
 }
 
 export type Payload = Record<string, any>
