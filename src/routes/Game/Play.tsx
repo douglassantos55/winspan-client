@@ -19,7 +19,7 @@ function Play({ server }: Props) {
     const [birds, setBirds] = useState<Bird[]>([]);
     const [birdTray, setBirdTray] = useState<Bird[]>([]);
     const [birdFeeder, setBirdFeeder] = useState<Partial<Record<FoodType, number>>>({});
-    const [board, setBoard] = useState<Partial<Record<Habitat, Array<Bird | null>>>>({});
+    const [board, setBoard] = useState<null | Partial<Record<Habitat, Array<Bird | null>>>>(null);
 
     const [turn, setTurn] = useState<number>(0);
     const [round, setRound] = useState<number>(0);
@@ -33,7 +33,7 @@ function Play({ server }: Props) {
             Method: Command.GetPlayerInfo,
             Params: player
         })
-    }, [player]);
+    }, [player, server]);
 
     useEffect(function() {
         server.on(Response.PlayerInfo, function(payload: Payload) {
@@ -45,9 +45,9 @@ function Play({ server }: Props) {
             setTurnOrder(payload.TurnOrder);
 
             setBirds(payload.Birds);
-            setBoard(payload.Board);
             setBirdTray(payload.BirdTray);
             setBirdFeeder(payload.BirdFeeder);
+            setBoard(payload.Board);
         });
 
         server.on(Response.StartTurn, function(payload: Payload) {
@@ -67,7 +67,7 @@ function Play({ server }: Props) {
         });
     }, [server]);
 
-    if (current == "") {
+    if (board === null) {
         return <p>Loading...</p>;
     }
 
@@ -79,7 +79,7 @@ function Play({ server }: Props) {
                 <div className={styles.players}>
                     {turnOrder.map(function(player: any) {
                         let className = styles.player;
-                        if (player.ID == current) {
+                        if (player.ID === current) {
                             className += " " + styles.current;
                         }
                         return (

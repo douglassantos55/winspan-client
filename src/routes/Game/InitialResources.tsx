@@ -34,15 +34,15 @@ function InitialResources({ server }: Props) {
             setTitle("Waiting other players");
         });
 
-        const startRoundId = server.on(Response.GameStarted, function() {
-            navigate('/game/play');
+        const startGameId = server.on(Response.GameStarted, function(playerId: string) {
+            navigate('/game/play/' + playerId);
         });
 
         return function() {
             server.off(Response.DiscardFood, [discardId]);
             server.off(Response.GameCanceled, [cancelId]);
             server.off(Response.WaitOtherPlayers, [waitId]);
-            server.off(Response.RoundStarted, [startRoundId]);
+            server.off(Response.RoundStarted, [startGameId]);
         }
     }, [navigate, server, selectedBirds]);
 

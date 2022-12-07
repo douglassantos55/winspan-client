@@ -186,7 +186,7 @@ describe('InitialResources', function() {
             <InitialResources server={server} />
         </MemoryRouter>);
 
-        act(() => fakeSocket.dispatch('test', { Type: Response.GameStarted }));
-        expect(mockNavigate).toHaveBeenCalledWith('/game/play');
+        act(() => fakeSocket.dispatch('test', { Type: Response.GameStarted, Payload: "playerid" }));
+        expect(mockNavigate).toHaveBeenCalledWith('/game/play/playerid');
     });
 });
