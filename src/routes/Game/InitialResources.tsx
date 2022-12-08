@@ -23,7 +23,9 @@ function InitialResources({ server }: Props) {
     const [selectedFood, setSelectedFood] = useState<number[]>(availableFood);
 
     useEffect(function() {
-        const cancelId = server.on(Response.GameCanceled, () => navigate('/'));
+        const cancelId = server.on(Response.GameCanceled, () =>
+            navigate('/', { replace: true })
+        );
 
         const discardId = server.on(Response.DiscardFood, function(qty: number) {
             setSelectedFood([]);
@@ -35,7 +37,7 @@ function InitialResources({ server }: Props) {
         });
 
         const startGameId = server.on(Response.GameStarted, function(playerId: string) {
-            navigate('/game/play/' + playerId);
+            navigate('/game/play/' + playerId, { replace: true });
         });
 
         return function() {

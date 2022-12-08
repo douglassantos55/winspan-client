@@ -19,7 +19,7 @@ function MatchFound({ server }: Props) {
         const waitId = server.on(Response.WaitOtherPlayers, () => setWaiting(true));
 
         const gameStartId = server.on(Response.ChooseCards, function(payload: Payload) {
-            navigate('/game/initial-resources', { state: payload });
+            navigate('/game/initial-resources', { state: payload, replace: true });
         });
 
         return function() {

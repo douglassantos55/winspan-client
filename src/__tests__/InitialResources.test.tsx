@@ -169,7 +169,7 @@ describe('InitialResources', function() {
         </MemoryRouter>);
 
         act(() => fakeSocket.dispatch('test', { Type: Response.GameCanceled }));
-        expect(mockNavigate).toHaveBeenCalledWith('/');
+        expect(mockNavigate).toHaveBeenCalledWith('/', { replace: true });
     });
 
     it('waits other players', function() {
@@ -187,6 +187,6 @@ describe('InitialResources', function() {
         </MemoryRouter>);
 
         act(() => fakeSocket.dispatch('test', { Type: Response.GameStarted, Payload: "playerid" }));
-        expect(mockNavigate).toHaveBeenCalledWith('/game/play/playerid');
+        expect(mockNavigate).toHaveBeenCalledWith('/game/play/playerid', { replace: true });
     });
 });

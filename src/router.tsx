@@ -1,4 +1,4 @@
-import { createHashRouter } from "react-router-dom";
+import { createBrowserRouter } from "react-router-dom";
 
 import server from "./server";
 import Queue from "./routes/Home";
@@ -7,7 +7,7 @@ import Play from "./routes/Game/Play";
 import MatchFound from "./routes/MatchFound";
 import InitialResources from "./routes/Game/InitialResources";
 
-export default createHashRouter([
+export default createBrowserRouter([
     {
         path: "/",
         index: true,
