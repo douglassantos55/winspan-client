@@ -134,4 +134,17 @@ describe("Play", function() {
         expect(players[0]).toHaveTextContent("2");
         expect(players[1]).toHaveTextContent("3");
     });
+
+    it("resets turns when round starts", function() {
+        const el = render(<MemoryRouter><Play player="1" server={server} /></MemoryRouter>);
+        sendPlayerInfo();
+
+        act(() => _fakeSocket.dispatch('test', {
+            Type: Response.RoundStarted,
+            Payload: { Turns: 4, Round: 4, TurnOrder: [{ ID: 2 }, { ID: 3 }] }
+        }));
+
+        expect(el.container).toHaveTextContent('Round 4');
+        expect(el.container).toHaveTextContent('Turn 1/4');
+    });
 });
