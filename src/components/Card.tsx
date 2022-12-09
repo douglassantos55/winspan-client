@@ -17,8 +17,13 @@ function Card({ bird, selected, ...props }: Props) {
     return (
         <div className={className} {...props}>
             <figure className={styles.imageContainer}>
-                <img src="http://placeimg.com/100/300/any" className={styles.image} alt={bird.Name} />
+                <img
+                    src={`https://picsum.photos/100/300?rand=${bird.ID}`}
+                    className={styles.image}
+                    alt={bird.Name}
+                />
             </figure>
+
             <h2 className={styles.name}>{bird.Name}</h2>
         </div>
     );
