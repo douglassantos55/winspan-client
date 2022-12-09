@@ -10,7 +10,7 @@ import styles from "./Play.module.css";
 
 type Props = {
     server: Server;
-    player: string;
+    player?: string;
 }
 
 function Play({ player, server }: Props) {
@@ -31,9 +31,7 @@ function Play({ player, server }: Props) {
             Method: Command.GetPlayerInfo,
             Params: player
         })
-    }, [player, server]);
 
-    useEffect(function() {
         server.on(Response.PlayerInfo, function(payload: Payload) {
             setTurn(payload.Turn);
             setRound(payload.Round);
@@ -65,7 +63,7 @@ function Play({ player, server }: Props) {
             setMaxTurns(payload.Turns);
             setTurnOrder(payload.TurnOrder)
         });
-    }, [server]);
+    }, [player, server]);
 
     if (board === null) {
         return <p>Loading...</p>;
