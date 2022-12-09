@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
 import Progress from "../../components/Progress";
 import { Command, Payload, Response, Server } from "../../server";
 import { Bird, FoodType, Habitat } from "../../types";
@@ -11,11 +10,10 @@ import styles from "./Play.module.css";
 
 type Props = {
     server: Server;
+    player: string;
 }
 
-function Play({ server }: Props) {
-    const { player } = useParams();
-
+function Play({ player, server }: Props) {
     const [birds, setBirds] = useState<Bird[]>([]);
     const [birdTray, setBirdTray] = useState<Bird[]>([]);
     const [birdFeeder, setBirdFeeder] = useState<Partial<Record<FoodType, number>>>({});
@@ -52,18 +50,20 @@ function Play({ server }: Props) {
 
         server.on(Response.StartTurn, function(payload: Payload) {
             setTurn(payload.Turn);
-            setCurrent(payload.Player);
+            setCurrent(player as string);
+            setDuration(payload.Duration);
         });
 
         server.on(Response.WaitTurn, function(payload: Payload) {
-            setCurrent(payload.Player);
+            setCurrent(payload.Current);
+            setDuration(payload.Duration);
         });
 
         server.on(Response.RoundStarted, function(payload: Payload) {
             setTurn(1);
             setRound(payload.Round);
             setMaxTurns(payload.Turns);
-            setTurnOrder(payload.Players)
+            setTurnOrder(payload.TurnOrder)
         });
     }, [server]);
 

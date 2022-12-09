@@ -6,6 +6,7 @@ import Game from "./routes/Game";
 import Play from "./routes/Game/Play";
 import MatchFound from "./routes/MatchFound";
 import InitialResources from "./routes/Game/InitialResources";
+import withRouteParams from "./components/ParamProvider";
 
 export default createBrowserRouter([
     {
@@ -27,7 +28,7 @@ export default createBrowserRouter([
             },
             {
                 path: "play/:player",
-                element: <Play server={server} />,
+                element: withRouteParams(<Play server={server} />),
             }
         ],
     }

@@ -13,8 +13,8 @@ describe("Play", function() {
             Payload: {
                 Turn: 1,
                 Round: 1,
-                Current: 2,
-                TurnOrder: [{ ID: 1 }, { ID: 2 }, { ID: 3 }, { ID: 4 }],
+                Current: "2",
+                TurnOrder: [{ ID: "1" }, { ID: "2" }, { ID: "3" }, { ID: "4" }],
                 MaxTurns: 8,
                 Duration: 100,
                 Board: {},
@@ -27,37 +27,37 @@ describe("Play", function() {
 
     it("requests player info", function() {
         const spy = jest.spyOn(server, 'send');
-        render(<MemoryRouter><Play server={server} /></MemoryRouter>);
+        render(<MemoryRouter><Play server={server} player="1" /></MemoryRouter>);
 
         expect(spy).toHaveBeenCalledWith({
             Method: Command.GetPlayerInfo,
-            Params: undefined
+            Params: "1",
         });
     });
 
     it("displays current round", function() {
-        const el = render(<MemoryRouter><Play server={server} /></MemoryRouter>);
+        const el = render(<MemoryRouter><Play player="1" server={server} /></MemoryRouter>);
         sendPlayerInfo();
 
         expect(el.container).toHaveTextContent('Round 1');
     });
 
     it("displays current turn", function() {
-        const el = render(<MemoryRouter><Play server={server} /></MemoryRouter>);
+        const el = render(<MemoryRouter><Play player="1" server={server} /></MemoryRouter>);
         sendPlayerInfo();
 
         expect(el.container).toHaveTextContent('Turn 1/8');
     });
 
     it("displays players", function() {
-        const el = render(<MemoryRouter><Play server={server} /></MemoryRouter>);
+        const el = render(<MemoryRouter><Play player="1" server={server} /></MemoryRouter>);
         sendPlayerInfo();
 
         expect(el.queryAllByTestId('player')).toHaveLength(4);
     });
 
     it("highlights current player", function() {
-        const el = render(<MemoryRouter><Play server={server} /></MemoryRouter>);
+        const el = render(<MemoryRouter><Play player="1" server={server} /></MemoryRouter>);
         sendPlayerInfo();
 
         const players = el.queryAllByTestId('player');
@@ -69,12 +69,17 @@ describe("Play", function() {
     });
 
     it("changes turns", function() {
-        const el = render(<MemoryRouter><Play server={server} /></MemoryRouter>);
+        const el = render(
+            <MemoryRouter>
+                <Play server={server} player="3" />
+            </MemoryRouter >
+        );
+
         sendPlayerInfo();
 
         act(() => _fakeSocket.dispatch('test', {
             Type: Response.StartTurn,
-            Payload: { Duration: 100, Turn: 3, Player: 3 }
+            Payload: { Duration: 100, Turn: 3 }
         }));
 
         const players = el.getAllByTestId('player')
@@ -87,12 +92,12 @@ describe("Play", function() {
     });
 
     it("changes current player", function() {
-        const el = render(<MemoryRouter><Play server={server} /></MemoryRouter>);
+        const el = render(<MemoryRouter><Play player="1" server={server} /></MemoryRouter>);
         sendPlayerInfo();
 
         act(() => _fakeSocket.dispatch('test', {
             Type: Response.WaitTurn,
-            Payload: { Turn: 3, Player: 4, Duration: 100 }
+            Payload: { Turn: 3, Current: "4", Duration: 100 }
         }));
 
         const players = el.getAllByTestId('player')
@@ -104,12 +109,12 @@ describe("Play", function() {
     });
 
     it("changes rounds", function() {
-        const el = render(<MemoryRouter><Play server={server} /></MemoryRouter>);
+        const el = render(<MemoryRouter><Play player="1" server={server} /></MemoryRouter>);
         sendPlayerInfo();
 
         act(() => _fakeSocket.dispatch('test', {
             Type: Response.RoundStarted,
-            Payload: { Players: [], Round: 3, Turns: 6 }
+            Payload: { TurnOrder: [], Round: 3, Turns: 6 }
         }));
 
         expect(el.container).toHaveTextContent("Round 3");
@@ -117,12 +122,12 @@ describe("Play", function() {
     });
 
     it("changes players order", function() {
-        const el = render(<MemoryRouter><Play server={server} /></MemoryRouter>);
+        const el = render(<MemoryRouter><Play player="1" server={server} /></MemoryRouter>);
         sendPlayerInfo();
 
         act(() => _fakeSocket.dispatch('test', {
             Type: Response.RoundStarted,
-            Payload: { Round: 4, Players: [{ ID: 2 }, { ID: 3 }] }
+            Payload: { Round: 4, TurnOrder: [{ ID: 2 }, { ID: 3 }] }
         }));
 
         const players = el.getAllByTestId('player')
