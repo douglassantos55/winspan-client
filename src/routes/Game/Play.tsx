@@ -15,6 +15,7 @@ type Props = {
 }
 
 function Play({ player, server }: Props) {
+    const [view, setView] = useState(player);
     const [birds, setBirds] = useState<Bird[]>([]);
     const [birdTray, setBirdTray] = useState<Bird[]>([]);
     const [birdFeeder, setBirdFeeder] = useState<Partial<Record<FoodType, number>>>({});
@@ -30,10 +31,12 @@ function Play({ player, server }: Props) {
     useEffect(function() {
         server.send({
             Method: Command.GetPlayerInfo,
-            Params: player
+            Params: view,
         })
+    }, [view, server]);
 
-        server.on(Response.PlayerInfo, function(payload: Payload) {
+    useEffect(function() {
+        const infoId = server.on(Response.PlayerInfo, function(payload: Payload) {
             setTurn(payload.Turn);
             setRound(payload.Round);
             setCurrent(payload.Current);
@@ -47,24 +50,32 @@ function Play({ player, server }: Props) {
             setBoard(payload.Board);
         });
 
-        server.on(Response.StartTurn, function(payload: Payload) {
+        const startTurnId = server.on(Response.StartTurn, function(payload: Payload) {
             setTurn(payload.Turn);
             setCurrent(player as string);
             setDuration(payload.Duration);
         });
 
-        server.on(Response.WaitTurn, function(payload: Payload) {
+        const waitTurnId = server.on(Response.WaitTurn, function(payload: Payload) {
             setCurrent(payload.Current);
             setDuration(payload.Duration);
         });
 
-        server.on(Response.RoundStarted, function(payload: Payload) {
+        const roundStartId = server.on(Response.RoundStarted, function(payload: Payload) {
             setTurn(1);
             setRound(payload.Round);
             setMaxTurns(payload.Turns);
             setTurnOrder(payload.TurnOrder)
         });
-    }, [player, server]);
+
+        return function() {
+            server.off(Response.PlayerInfo, [infoId]);
+            server.off(Response.StartTurn, [startTurnId]);
+            server.off(Response.WaitTurn, [waitTurnId]);
+            server.off(Response.RoundStarted, [roundStartId]);
+        }
+    }, [server, player]);
+
 
     if (board === null) {
         return <p>Loading...</p>;
@@ -83,6 +94,7 @@ function Play({ player, server }: Props) {
                                 player={curPlayer}
                                 active={curPlayer.ID === current}
                                 highlighted={curPlayer.ID === view}
+                                onClick={() => setView(curPlayer.ID)}
                             />
                         );
                     })}

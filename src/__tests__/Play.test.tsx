@@ -1,4 +1,4 @@
-import { act, render } from "@testing-library/react";
+import { act, fireEvent, render } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import Play from "../routes/Game/Play";
 import { Command, Response, ServerImpl } from "../server";
@@ -18,7 +18,7 @@ describe("Play", function() {
                 MaxTurns: 8,
                 Duration: 100,
                 Board: {},
-                Birds: [],
+                Birds: [{ID: 1}, {ID: 2}, {ID: 3}],
                 BirdTray: [],
                 BirdFeeder: {},
             },
@@ -145,5 +145,50 @@ describe("Play", function() {
 
         expect(el.container).toHaveTextContent('Round 4');
         expect(el.container).toHaveTextContent('Turn 1/4');
+    });
+
+    it("switches players", function() {
+        const el = render(
+            <MemoryRouter>
+                <Play player="1" server={server} />
+            </MemoryRouter>
+        );
+
+        sendPlayerInfo();
+
+        const spy = jest.spyOn(server, "send");
+        const players = el.getAllByTestId("player");
+
+        fireEvent.click(players[0]);
+        expect(spy).toHaveBeenCalledWith({ Method: "Game.PlayerInfo", Params: "1" });
+
+        expect(players[0].classList.contains('active')).toBe(false);
+        expect(players[1].classList.contains('active')).toBe(true);
+        expect(players[2].classList.contains('active')).toBe(false);
+        expect(players[3].classList.contains('active')).toBe(false);
+
+        fireEvent.click(players[1]);
+        expect(spy).toHaveBeenCalledWith({ Method: "Game.PlayerInfo", Params: "2" });
+
+        expect(players[0].classList.contains('active')).toBe(false);
+        expect(players[1].classList.contains('active')).toBe(true);
+        expect(players[2].classList.contains('active')).toBe(false);
+        expect(players[3].classList.contains('active')).toBe(false);
+
+        fireEvent.click(players[2]);
+        expect(spy).toHaveBeenCalledWith({ Method: "Game.PlayerInfo", Params: "3" });
+
+        expect(players[0].classList.contains('active')).toBe(false);
+        expect(players[1].classList.contains('active')).toBe(true);
+        expect(players[2].classList.contains('active')).toBe(false);
+        expect(players[3].classList.contains('active')).toBe(false);
+
+        fireEvent.click(players[3]);
+        expect(spy).toHaveBeenCalledWith({ Method: "Game.PlayerInfo", Params: "4" });
+
+        expect(players[0].classList.contains('active')).toBe(false);
+        expect(players[1].classList.contains('active')).toBe(true);
+        expect(players[2].classList.contains('active')).toBe(false);
+        expect(players[3].classList.contains('active')).toBe(false);
     });
 });
