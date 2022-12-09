@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import PlayerPortrait from "../../components/PlayerPortrait";
 import Progress from "../../components/Progress";
 import { Command, Payload, Response, Server } from "../../server";
 import { Bird, FoodType, Habitat } from "../../types";
@@ -75,15 +76,14 @@ function Play({ player, server }: Props) {
                 <span className={styles.round}>Round {round}</span>
 
                 <div className={styles.players}>
-                    {turnOrder.map(function(player: any) {
-                        let className = styles.player;
-                        if (player.ID === current) {
-                            className += " " + styles.current;
-                        }
+                    {turnOrder.map(function(curPlayer: any) {
                         return (
-                            <div key={player.ID} className={className} data-testid="player">
-                                {player.ID}
-                            </div>
+                            <PlayerPortrait
+                                key={curPlayer.ID}
+                                player={curPlayer}
+                                active={curPlayer.ID === current}
+                                highlighted={curPlayer.ID === view}
+                            />
                         );
                     })}
                 </div>

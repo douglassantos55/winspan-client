@@ -1,0 +1,28 @@
+.container {
+    display: flex;
+    cursor: pointer;
+    position: relative;
+    justify-content: center;
+}
+
+.active:after {
+    content: "";
+    width: 0.5rem;
+    height: 0.5rem;
+    bottom: -0.8rem;
+    position: absolute;
+    border-radius: 100%;
+    background-color: var(--primary-color);
+}
+
+.highlighted .image {
+    border-color: green;
+}
+
+.image {
+    width: 3rem;
+    height: 3rem;
+    object-fit: cover;
+    border-radius: 100%;
+    border: 0.2rem solid var(--border-color);
+}

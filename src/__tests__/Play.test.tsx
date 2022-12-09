@@ -62,10 +62,10 @@ describe("Play", function() {
 
         const players = el.queryAllByTestId('player');
 
-        expect(players[0].classList.contains('current')).toBe(false);
-        expect(players[1].classList.contains('current')).toBe(true);
-        expect(players[2].classList.contains('current')).toBe(false);
-        expect(players[3].classList.contains('current')).toBe(false);
+        expect(players[0].classList.contains('active')).toBe(false);
+        expect(players[1].classList.contains('active')).toBe(true);
+        expect(players[2].classList.contains('active')).toBe(false);
+        expect(players[3].classList.contains('active')).toBe(false);
     });
 
     it("changes turns", function() {
@@ -85,10 +85,10 @@ describe("Play", function() {
         const players = el.getAllByTestId('player')
         expect(el.container).toHaveTextContent("Turn 3/8");
 
-        expect(players[0].classList.contains('current')).toBe(false);
-        expect(players[1].classList.contains('current')).toBe(false);
-        expect(players[2].classList.contains('current')).toBe(true);
-        expect(players[3].classList.contains('current')).toBe(false);
+        expect(players[0].classList.contains('active')).toBe(false);
+        expect(players[1].classList.contains('active')).toBe(false);
+        expect(players[2].classList.contains('active')).toBe(true);
+        expect(players[3].classList.contains('active')).toBe(false);
     });
 
     it("changes current player", function() {
@@ -102,10 +102,10 @@ describe("Play", function() {
 
         const players = el.getAllByTestId('player')
 
-        expect(players[0].classList.contains('current')).toBe(false);
-        expect(players[1].classList.contains('current')).toBe(false);
-        expect(players[2].classList.contains('current')).toBe(false);
-        expect(players[3].classList.contains('current')).toBe(true);
+        expect(players[0].classList.contains('active')).toBe(false);
+        expect(players[1].classList.contains('active')).toBe(false);
+        expect(players[2].classList.contains('active')).toBe(false);
+        expect(players[3].classList.contains('active')).toBe(true);
     });
 
     it("changes rounds", function() {
@@ -131,8 +131,7 @@ describe("Play", function() {
         }));
 
         const players = el.getAllByTestId('player')
-        expect(players[0]).toHaveTextContent("2");
-        expect(players[1]).toHaveTextContent("3");
+        expect(players).toHaveLength(2);
     });
 
     it("resets turns when round starts", function() {
