@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import Button from "../../components/Button";
 import PlayerPortrait from "../../components/PlayerPortrait";
 import Progress from "../../components/Progress";
 import { Command, Payload, Response, Server } from "../../server";
@@ -100,7 +101,17 @@ function Play({ player, server }: Props) {
                     })}
                 </div>
 
-                <span className={styles.turn}>Turn {turn}/{maxTurns}</span>
+                <div className={styles.turn}>
+                    <div>Turn {turn}/{maxTurns}</div>
+
+                    <Button
+                        data-testid="end-turn"
+                        disabled={current !== player}
+                        onClick={() => server.send({ Method: Command.EndTurn })}
+                    >
+                        End turn
+                    </Button>
+                </div>
             </div>
 
             <Progress duration={duration} />

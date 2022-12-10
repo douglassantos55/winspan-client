@@ -18,7 +18,7 @@ describe("Play", function() {
                 MaxTurns: 8,
                 Duration: 100,
                 Board: {},
-                Birds: [{ID: 1}, {ID: 2}, {ID: 3}],
+                Birds: [{ ID: 1 }, { ID: 2 }, { ID: 3 }],
                 BirdTray: [],
                 BirdFeeder: {},
             },
@@ -160,7 +160,7 @@ describe("Play", function() {
         const players = el.getAllByTestId("player");
 
         fireEvent.click(players[0]);
-        expect(spy).toHaveBeenCalledWith({ Method: "Game.PlayerInfo", Params: "1" });
+        expect(spy).toHaveBeenCalledWith({ Method: Command.GetPlayerInfo, Params: "1" });
 
         expect(players[0].classList.contains('active')).toBe(false);
         expect(players[1].classList.contains('active')).toBe(true);
@@ -168,7 +168,7 @@ describe("Play", function() {
         expect(players[3].classList.contains('active')).toBe(false);
 
         fireEvent.click(players[1]);
-        expect(spy).toHaveBeenCalledWith({ Method: "Game.PlayerInfo", Params: "2" });
+        expect(spy).toHaveBeenCalledWith({ Method: Command.GetPlayerInfo, Params: "2" });
 
         expect(players[0].classList.contains('active')).toBe(false);
         expect(players[1].classList.contains('active')).toBe(true);
@@ -176,7 +176,7 @@ describe("Play", function() {
         expect(players[3].classList.contains('active')).toBe(false);
 
         fireEvent.click(players[2]);
-        expect(spy).toHaveBeenCalledWith({ Method: "Game.PlayerInfo", Params: "3" });
+        expect(spy).toHaveBeenCalledWith({ Method: Command.GetPlayerInfo, Params: "3" });
 
         expect(players[0].classList.contains('active')).toBe(false);
         expect(players[1].classList.contains('active')).toBe(true);
@@ -184,11 +184,29 @@ describe("Play", function() {
         expect(players[3].classList.contains('active')).toBe(false);
 
         fireEvent.click(players[3]);
-        expect(spy).toHaveBeenCalledWith({ Method: "Game.PlayerInfo", Params: "4" });
+        expect(spy).toHaveBeenCalledWith({ Method: Command.GetPlayerInfo, Params: "4" });
 
         expect(players[0].classList.contains('active')).toBe(false);
         expect(players[1].classList.contains('active')).toBe(true);
         expect(players[2].classList.contains('active')).toBe(false);
         expect(players[3].classList.contains('active')).toBe(false);
+    });
+
+    it("ends turns", function() {
+        const el = render(
+            <MemoryRouter>
+                <Play player="2" server={server} />
+            </MemoryRouter>
+        );
+
+        sendPlayerInfo();
+
+        const spy = jest.spyOn(server, "send");
+        fireEvent.click(el.getByTestId("end-turn"));
+
+        expect(spy).toHaveBeenCalledWith({
+            Method: Command.EndTurn,
+            Params: undefined
+        });
     });
 });

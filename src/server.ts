@@ -5,6 +5,7 @@ export enum Command {
     ChooseBirds = "Game.ChooseBirds",
     DiscardFood = "Game.DiscardFood",
     GetPlayerInfo = "Game.PlayerInfo",
+    EndTurn = "Game.EndTurn",
 }
 
 export enum Response {
