@@ -7,6 +7,7 @@ import { Bird, FoodType, Habitat } from "../../types";
 import BirdFeeder from "./BirdFeeder";
 import BirdTray from "./BirdTray";
 import Board from "./Board";
+import Deck from "./Deck";
 import Hand from "./Hand";
 import styles from "./Play.module.css";
 
@@ -127,13 +128,14 @@ function Play({ player, server }: Props) {
                 <Board rows={board} />
 
                 <div className={styles.sidebar}>
-                    <BirdTray birds={birdTray} />
+                    <BirdTray birds={birdTray} server={server} />
                     <BirdFeeder food={birdFeeder} />
                 </div>
             </div>
 
             <div className={styles.footer}>
                 <Hand birds={birds} />
+                <Deck server={server} />
             </div>
         </div>
     );
