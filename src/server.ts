@@ -6,6 +6,7 @@ export enum Command {
     DiscardFood = "Game.DiscardFood",
     GetPlayerInfo = "Game.PlayerInfo",
     EndTurn = "Game.EndTurn",
+    DrawFromDeck = "Game.DrawFromDeck",
 }
 
 export enum Response {
