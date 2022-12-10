@@ -69,11 +69,18 @@ function Play({ player, server }: Props) {
             setTurnOrder(payload.TurnOrder)
         });
 
+        const birdsDrawnId = server.on(Response.BirdsDrawn, (payload: Bird[]) => {
+            setBirds(function(curr: Bird[]) {
+                return [...curr, ...payload];
+            });
+        });
+
         return function() {
             server.off(Response.PlayerInfo, [infoId]);
             server.off(Response.StartTurn, [startTurnId]);
             server.off(Response.WaitTurn, [waitTurnId]);
             server.off(Response.RoundStarted, [roundStartId]);
+            server.off(Response.BirdsDrawn, [birdsDrawnId]);
         }
     }, [server, player]);
 

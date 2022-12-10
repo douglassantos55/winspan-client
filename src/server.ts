@@ -23,6 +23,7 @@ export enum Response {
     StartTurn = "start_turn",
     WaitTurn = "wait_turn",
     PlayerInfo = "player_info",
+    BirdsDrawn = "birds_drawn",
 }
 
 export type Payload = Record<string, any>

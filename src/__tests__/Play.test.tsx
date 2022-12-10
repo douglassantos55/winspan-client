@@ -209,4 +209,22 @@ describe("Play", function() {
             Params: undefined
         });
     });
+
+    it("draws cards from deck", function() {
+        const el = render(
+            <MemoryRouter>
+                <Play player="2" server={server} />
+            </MemoryRouter>
+        );
+
+        sendPlayerInfo();
+
+        act(() => _fakeSocket.dispatch("test", {
+            Type: Response.BirdsDrawn,
+            Payload: [{ ID: 4 }, { ID: 5 }],
+        }));
+
+        const birds = el.getAllByTestId("bird");
+        expect(birds).toHaveLength(5);
+    });
 });
