@@ -19,7 +19,7 @@ describe("Play", function() {
                 Duration: 100,
                 Board: {},
                 Birds: [{ ID: 1 }, { ID: 2 }, { ID: 3 }],
-                BirdTray: [],
+                BirdTray: [{ ID: 4 }, { ID: 5 }, { ID: 6 }],
                 BirdFeeder: {},
             },
         }));
@@ -247,5 +247,23 @@ describe("Play", function() {
         }));
 
         expect(el.getAllByTestId("bird")).toHaveLength(5);
+    });
+
+    it("removes drawn cards from tray", function() {
+        const el = render(
+            <MemoryRouter>
+                <Play player="1" server={server} />
+            </MemoryRouter>
+        );
+
+        sendPlayerInfo();
+        expect(el.getAllByTestId("tray-bird")).toHaveLength(3);
+
+        act(() => _fakeSocket.dispatch("test", {
+            Type: Response.BirdsDrawn,
+            Payload: [{ ID: 4 }, { ID: 5 }],
+        }));
+
+        expect(el.getAllByTestId("tray-bird")).toHaveLength(1);
     });
 });

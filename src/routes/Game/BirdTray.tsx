@@ -62,7 +62,7 @@ function BirdTray({ birds, server }: Props) {
                     <Card
                         key={bird.ID}
                         bird={bird}
-                        data-testid="bird"
+                        data-testid="tray-bird"
                         onClick={() => draw(bird.ID)}
                         selected={birdsToDraw.includes(bird.ID)}
                     />

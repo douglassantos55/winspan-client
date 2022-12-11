@@ -60,6 +60,22 @@ function Play({ player, server }: Props) {
                     return [...curr, ...payload];
                 });
             }
+
+            for (let i = 0; i < payload.length; i++) {
+                const index = refBirdTray.current.findIndex(function(bird: Bird) {
+                    return bird.ID === payload[i].ID;
+                });
+
+                if (index !== -1) {
+                    setBirdTray(function(curr: Bird[]) {
+                        return [
+                            ...curr.slice(0, index),
+                            ...curr.slice(index + 1),
+                        ];
+                    });
+                }
+
+            }
         });
 
         const startTurnId = server.on(Response.StartTurn, function(payload: Payload) {

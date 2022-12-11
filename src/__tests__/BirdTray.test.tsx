@@ -13,12 +13,12 @@ describe("Bird Tray", function() {
         ];
 
         const el = render(<BirdTray birds={birds} server={server} />);
-        expect(el.getAllByTestId('bird')).toHaveLength(2);
+        expect(el.getAllByTestId('tray-bird')).toHaveLength(2);
     });
 
     it("renders no birds", function() {
         const el = render(<BirdTray birds={[]} server={server} />);
-        expect(el.queryAllByTestId('bird')).toHaveLength(0);
+        expect(el.queryAllByTestId('tray-bird')).toHaveLength(0);
     });
 
     it("draws birds from tray", function() {
@@ -26,7 +26,7 @@ describe("Bird Tray", function() {
         const el = render(<BirdTray birds={tray} server={server} />);
 
         const spy = jest.spyOn(server, "send");
-        let birds = el.getAllByTestId("bird");
+        let birds = el.getAllByTestId("tray-bird");
 
         fireEvent.click(birds[1]);
 
