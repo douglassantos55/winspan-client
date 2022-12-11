@@ -20,9 +20,9 @@ type Props = {
 function Play({ player, server }: Props) {
     const [refView, view, setView] = useRefState(player);
     const [refCurrent, current, setCurrent] = useRefState<string>("");
-    const [refBirdTray, birdTray, setBirdTray] = useRefState<Bird[]>([]);
 
     const [birds, setBirds] = useState<Bird[]>([]);
+    const [birdTray, setBirdTray] = useState<Bird[]>([]);
     const [birdFeeder, setBirdFeeder] = useState<Partial<Record<FoodType, number>>>({});
     const [board, setBoard] = useState<null | Partial<Record<Habitat, Array<Bird | null>>>>(null);
 
@@ -61,21 +61,14 @@ function Play({ player, server }: Props) {
                 });
             }
 
-            for (let i = 0; i < payload.length; i++) {
-                const index = refBirdTray.current.findIndex(function(bird: Bird) {
-                    return bird.ID === payload[i].ID;
+            setBirdTray(function(curr: Bird[]) {
+                return curr.filter(function(bird: Bird) {
+                    return payload.findIndex(function(drawn: Bird) {
+                        return bird.ID === drawn.ID;
+                    }) === -1;
                 });
 
-                if (index !== -1) {
-                    setBirdTray(function(curr: Bird[]) {
-                        return [
-                            ...curr.slice(0, index),
-                            ...curr.slice(index + 1),
-                        ];
-                    });
-                }
-
-            }
+            });
         });
 
         const startTurnId = server.on(Response.StartTurn, function(payload: Payload) {
@@ -96,12 +89,23 @@ function Play({ player, server }: Props) {
             setTurnOrder(payload.TurnOrder)
         });
 
+        const birdPlayedId = server.on(Response.BirdPlayed, function(payload: Payload) {
+            if (payload.player === refView.current) {
+                setBirds(function(curr: Bird[]) {
+                    return curr.filter(function(bird: Bird) {
+                        return bird.ID !== payload.bird.ID;
+                    });
+                });
+            }
+        });
+
         return function() {
             server.off(Response.PlayerInfo, [infoId]);
             server.off(Response.StartTurn, [startTurnId]);
             server.off(Response.WaitTurn, [waitTurnId]);
             server.off(Response.RoundStarted, [roundStartId]);
             server.off(Response.BirdsDrawn, [birdsDrawnId]);
+            server.off(Response.BirdPlayed, [birdPlayedId]);
         }
     }, [server, player]);
 
@@ -154,7 +158,7 @@ function Play({ player, server }: Props) {
             </div>
 
             <div className={styles.footer}>
-                <Hand birds={birds} />
+                <Hand server={server} birds={birds} />
                 <Deck server={server} />
             </div>
         </div>

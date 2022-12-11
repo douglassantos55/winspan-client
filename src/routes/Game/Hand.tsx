@@ -1,12 +1,21 @@
 import styles from "./Hand.module.css";
 import Card from "../../components/Card";
 import { Bird } from "../../types";
+import { Command, Server } from "../../server";
 
 type Props = {
     birds: Bird[];
+    server: Server;
 }
 
-function Hand({ birds }: Props) {
+function Hand({ server, birds }: Props) {
+    function playBird(birdID: number) {
+        server.send({
+            Method: Command.PlayBird,
+            Params: birdID,
+        });
+    }
+
     return (
         <div className={styles.container}>
             {birds.map(function(bird: Bird) {
@@ -15,6 +24,7 @@ function Hand({ birds }: Props) {
                         key={bird.ID}
                         bird={bird}
                         data-testid="bird"
+                        onClick={() => playBird(bird.ID)}
                     />
                 );
             })}

@@ -9,6 +9,7 @@ export enum Command {
     DrawCards = "Game.DrawCards",
     DrawFromDeck = "Game.DrawFromDeck",
     DrawFromTray = "Game.DrawFromTray",
+    PlayBird = "Game.PlayCard",
 }
 
 export enum Response {
@@ -27,6 +28,7 @@ export enum Response {
     PlayerInfo = "player_info",
     ChooseBirds = "choose_cards",
     BirdsDrawn = "birds_drawn",
+    BirdPlayed = "bird_played",
 }
 
 export type Payload = Record<string, any>

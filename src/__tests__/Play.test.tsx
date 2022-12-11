@@ -266,4 +266,47 @@ describe("Play", function() {
 
         expect(el.getAllByTestId("tray-bird")).toHaveLength(1);
     });
+
+    it("removes played bird", function() {
+        const el = render(
+            <MemoryRouter>
+                <Play player="2" server={server} />
+            </MemoryRouter>
+        );
+
+        sendPlayerInfo();
+
+        act(() => _fakeSocket.dispatch("test", {
+            Type: Response.BirdPlayed,
+            Payload: {
+                player: "2",
+                bird: { ID: 1 },
+            },
+        }));
+
+        expect(el.getAllByTestId("bird")).toHaveLength(2);
+    });
+
+    it("removes played bird when looking at other players board", function() {
+        const el = render(
+            <MemoryRouter>
+                <Play player="1" server={server} />
+            </MemoryRouter>
+        );
+
+        sendPlayerInfo();
+
+        const players = el.getAllByTestId("player");
+        fireEvent.click(players[1]);
+
+        act(() => _fakeSocket.dispatch("test", {
+            Type: Response.BirdPlayed,
+            Payload: {
+                player: "2",
+                bird: { ID: 1 },
+            },
+        }));
+
+        expect(el.getAllByTestId("bird")).toHaveLength(2);
+    });
 });
