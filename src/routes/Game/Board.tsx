@@ -1,9 +1,11 @@
 import BoardRow from "./BoardRow";
 import styles from "./Board.module.css";
-import { Bird, Habitat } from "../../types";
+import { Habitat, Board as BoardType, Slots } from "../../types";
+import { Server } from "../../server";
 
 type Props = {
-    rows: Partial<Record<Habitat, Array<Bird | null>>>;
+    server: Server;
+    rows: BoardType;
 }
 
 const ACTIONS = {
@@ -27,14 +29,15 @@ const ACTIONS = {
     },
 }
 
-function Board({ rows }: Props) {
+function Board({ rows, server }: Props) {
     return (
         <div className={styles.board}>
-            {Object.values(rows).map(function(slots: Array<Bird | null>, habitat: Habitat) {
+            {Object.values(rows).map(function(slots: Slots, habitat: Habitat) {
                 return (
                     <BoardRow
                         key={habitat}
                         slots={slots}
+                        server={server}
                         icon={ACTIONS[habitat].icon}
                         amount={ACTIONS[habitat].amount}
                         actionName={ACTIONS[habitat].name}

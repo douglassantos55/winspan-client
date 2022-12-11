@@ -6,14 +6,21 @@ type Props = {
     icon: string;
     amount: number;
     resource: string;
+    disabled: boolean;
     bird: Bird | null;
+    onClick?: () => void;
 }
 
-function BoardSlot({ bird, icon, amount, resource }: Props) {
+function BoardSlot({ bird, icon, amount, resource, disabled, onClick }: Props) {
     if (bird != null) {
         return (
             <div className={styles.slot} data-testid="slot">
-                <Card bird={bird} data-testid="row-bird" />
+                <Card
+                    bird={bird}
+                    onClick={onClick}
+                    disabled={disabled}
+                    data-testid="row-bird"
+                />
             </div>
         );
     }

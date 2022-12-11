@@ -10,6 +10,7 @@ export enum Command {
     DrawFromDeck = "Game.DrawFromDeck",
     DrawFromTray = "Game.DrawFromTray",
     PlayBird = "Game.PlayCard",
+    ActivatePower = "Game.ActivatePower",
 }
 
 export enum Response {

@@ -160,7 +160,7 @@ function Play({ player, server }: Props) {
             <Progress duration={duration} />
 
             <div className={styles.main}>
-                <Board rows={board} />
+                <Board server={server} rows={board} />
 
                 <div className={styles.sidebar}>
                     <BirdTray birds={birdTray} server={server} />

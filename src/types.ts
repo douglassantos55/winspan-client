@@ -17,6 +17,8 @@ export enum Habitat {
     Wetland,
 }
 
+export type Slots = Array<Bird | null>;
+
 export type Board = {
-    [k in Habitat]: Array<Bird | null>;
+    [k in Habitat]: Slots;
 }
