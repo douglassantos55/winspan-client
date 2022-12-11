@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Button from "../../components/Button";
 import PlayerPortrait from "../../components/PlayerPortrait";
 import Progress from "../../components/Progress";
@@ -37,6 +37,12 @@ function Play({ player, server }: Props) {
         })
     }, [view, server]);
 
+    const playing = useRef("");
+    const viewing = useRef(view);
+
+    useEffect(() => { playing.current = current }, [current]);
+    useEffect(() => { viewing.current = view }, [view]);
+
     useEffect(function() {
         const infoId = server.on(Response.PlayerInfo, function(payload: Payload) {
             setTurn(payload.Turn);
@@ -50,6 +56,14 @@ function Play({ player, server }: Props) {
             setBirdTray(payload.BirdTray);
             setBirdFeeder(payload.BirdFeeder);
             setBoard(payload.Board);
+        });
+
+        const birdsDrawnId = server.on(Response.BirdsDrawn, (payload: Bird[]) => {
+            if (playing.current === viewing.current) {
+                setBirds(function(curr: Bird[]) {
+                    return [...curr, ...payload];
+                });
+            }
         });
 
         const startTurnId = server.on(Response.StartTurn, function(payload: Payload) {
@@ -68,12 +82,6 @@ function Play({ player, server }: Props) {
             setRound(payload.Round);
             setMaxTurns(payload.Turns);
             setTurnOrder(payload.TurnOrder)
-        });
-
-        const birdsDrawnId = server.on(Response.BirdsDrawn, (payload: Bird[]) => {
-            setBirds(function(curr: Bird[]) {
-                return [...curr, ...payload];
-            });
         });
 
         return function() {

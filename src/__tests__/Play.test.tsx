@@ -218,13 +218,34 @@ describe("Play", function() {
         );
 
         sendPlayerInfo();
+        expect(el.getAllByTestId("bird")).toHaveLength(3);
 
         act(() => _fakeSocket.dispatch("test", {
             Type: Response.BirdsDrawn,
             Payload: [{ ID: 4 }, { ID: 5 }],
         }));
 
-        const birds = el.getAllByTestId("bird");
-        expect(birds).toHaveLength(5);
+        expect(el.getAllByTestId("bird")).toHaveLength(5);
+    });
+
+    it("draws cards from tray", function() {
+        const el = render(
+            <MemoryRouter>
+                <Play player="1" server={server} />
+            </MemoryRouter>
+        );
+
+        sendPlayerInfo();
+        expect(el.getAllByTestId("bird")).toHaveLength(3);
+
+        const players = el.getAllByTestId("player");
+        fireEvent.click(players[1]);
+
+        act(() => _fakeSocket.dispatch("test", {
+            Type: Response.BirdsDrawn,
+            Payload: [{ ID: 4 }, { ID: 5 }],
+        }));
+
+        expect(el.getAllByTestId("bird")).toHaveLength(5);
     });
 });
