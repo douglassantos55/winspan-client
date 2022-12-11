@@ -2,6 +2,7 @@ import { act, fireEvent, render } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import Play from "../routes/Game/Play";
 import { Command, Response, ServerImpl } from "../server";
+import { Habitat } from "../types";
 import _fakeSocket from "./_fakeSocket";
 
 describe("Play", function() {
@@ -17,7 +18,11 @@ describe("Play", function() {
                 TurnOrder: [{ ID: "1" }, { ID: "2" }, { ID: "3" }, { ID: "4" }],
                 MaxTurns: 8,
                 Duration: 100,
-                Board: {},
+                Board: {
+                    [Habitat.Forest]: [null, null, null, null, null],
+                    [Habitat.Grassland]: [null, null, null, null, null],
+                    [Habitat.Wetland]: [null, null, null, null, null],
+                },
                 Birds: [{ ID: 1 }, { ID: 2 }, { ID: 3 }],
                 BirdTray: [{ ID: 4 }, { ID: 5 }, { ID: 6 }],
                 BirdFeeder: {},
@@ -280,7 +285,7 @@ describe("Play", function() {
             Type: Response.BirdPlayed,
             Payload: {
                 player: "2",
-                bird: { ID: 1 },
+                bird: { ID: 1, Habitat: Habitat.Wetland },
             },
         }));
 
@@ -303,10 +308,31 @@ describe("Play", function() {
             Type: Response.BirdPlayed,
             Payload: {
                 player: "2",
-                bird: { ID: 1 },
+                bird: { ID: 1, Habitat: Habitat.Forest },
             },
         }));
 
         expect(el.getAllByTestId("bird")).toHaveLength(2);
+    });
+
+    it("adds played bird on board", function() {
+        const el = render(
+            <MemoryRouter>
+                <Play player="2" server={server} />
+            </MemoryRouter>
+        );
+
+        sendPlayerInfo();
+
+        act(() => _fakeSocket.dispatch("test", {
+            Type: Response.BirdPlayed,
+            Payload: {
+                player: "2",
+                bird: { ID: 1, Habitat: Habitat.Forest },
+            },
+        }));
+
+        const rows = el.getAllByTestId("row");
+        expect(rows[0].querySelectorAll("[data-testid='row-bird']")).toHaveLength(1);
     });
 });

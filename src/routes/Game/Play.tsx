@@ -4,7 +4,7 @@ import PlayerPortrait from "../../components/PlayerPortrait";
 import Progress from "../../components/Progress";
 import useRefState from "../../hooks/useRefState";
 import { Command, Payload, Response, Server } from "../../server";
-import { Bird, FoodType, Habitat } from "../../types";
+import { Bird, FoodType, Board as BoardType, Habitat } from "../../types";
 import BirdFeeder from "./BirdFeeder";
 import BirdTray from "./BirdTray";
 import Board from "./Board";
@@ -24,7 +24,7 @@ function Play({ player, server }: Props) {
     const [birds, setBirds] = useState<Bird[]>([]);
     const [birdTray, setBirdTray] = useState<Bird[]>([]);
     const [birdFeeder, setBirdFeeder] = useState<Partial<Record<FoodType, number>>>({});
-    const [board, setBoard] = useState<null | Partial<Record<Habitat, Array<Bird | null>>>>(null);
+    const [board, setBoard] = useState<null | BoardType>(null);
 
     const [turn, setTurn] = useState<number>(0);
     const [round, setRound] = useState<number>(0);
@@ -95,6 +95,17 @@ function Play({ player, server }: Props) {
                     return curr.filter(function(bird: Bird) {
                         return bird.ID !== payload.bird.ID;
                     });
+                });
+
+                setBoard(function(curr: null | BoardType) {
+                    if (curr !== null) {
+                        const habitat = payload.bird.Habitat as Habitat;
+                        return {
+                            ...curr,
+                            [habitat]: [...curr[habitat], payload.bird],
+                        }
+                    }
+                    return curr;
                 });
             }
         });
