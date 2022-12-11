@@ -1,7 +1,8 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import Button from "../../components/Button";
 import PlayerPortrait from "../../components/PlayerPortrait";
 import Progress from "../../components/Progress";
+import useRefState from "../../hooks/useRefState";
 import { Command, Payload, Response, Server } from "../../server";
 import { Bird, FoodType, Habitat } from "../../types";
 import BirdFeeder from "./BirdFeeder";
@@ -17,15 +18,16 @@ type Props = {
 }
 
 function Play({ player, server }: Props) {
-    const [view, setView] = useState(player);
+    const [refView, view, setView] = useRefState(player);
+    const [refCurrent, current, setCurrent] = useRefState<string>("");
+    const [refBirdTray, birdTray, setBirdTray] = useRefState<Bird[]>([]);
+
     const [birds, setBirds] = useState<Bird[]>([]);
-    const [birdTray, setBirdTray] = useState<Bird[]>([]);
     const [birdFeeder, setBirdFeeder] = useState<Partial<Record<FoodType, number>>>({});
     const [board, setBoard] = useState<null | Partial<Record<Habitat, Array<Bird | null>>>>(null);
 
     const [turn, setTurn] = useState<number>(0);
     const [round, setRound] = useState<number>(0);
-    const [current, setCurrent] = useState<string>("");
     const [maxTurns, setMaxTurns] = useState<number>(0);
     const [duration, setDuration] = useState<number>(0);
     const [turnOrder, setTurnOrder] = useState([]);
@@ -36,12 +38,6 @@ function Play({ player, server }: Props) {
             Params: view,
         })
     }, [view, server]);
-
-    const playing = useRef("");
-    const viewing = useRef(view);
-
-    useEffect(() => { playing.current = current }, [current]);
-    useEffect(() => { viewing.current = view }, [view]);
 
     useEffect(function() {
         const infoId = server.on(Response.PlayerInfo, function(payload: Payload) {
@@ -59,7 +55,7 @@ function Play({ player, server }: Props) {
         });
 
         const birdsDrawnId = server.on(Response.BirdsDrawn, (payload: Bird[]) => {
-            if (playing.current === viewing.current) {
+            if (refCurrent.current === refView.current) {
                 setBirds(function(curr: Bird[]) {
                     return [...curr, ...payload];
                 });
