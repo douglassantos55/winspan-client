@@ -11,6 +11,8 @@ export enum Command {
     DrawFromTray = "Game.DrawFromTray",
     PlayBird = "Game.PlayCard",
     ActivatePower = "Game.ActivatePower",
+    GainFood = "Game.GainFood",
+    ChooseFood = "Game.ChooseFood",
 }
 
 export enum Response {
@@ -30,6 +32,8 @@ export enum Response {
     ChooseBirds = "choose_cards",
     BirdsDrawn = "birds_drawn",
     BirdPlayed = "bird_played",
+    ChooseFood = "choose_food",
+    FoodGained = "food_gained",
 }
 
 export type Payload = Record<string, any>

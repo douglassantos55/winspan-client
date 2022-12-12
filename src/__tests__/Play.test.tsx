@@ -25,7 +25,7 @@ describe("Play", function() {
                 },
                 Birds: [{ ID: 1 }, { ID: 2 }, { ID: 3 }],
                 BirdTray: [{ ID: 4 }, { ID: 5 }, { ID: 6 }],
-                BirdFeeder: {},
+                BirdFeeder: { 0: 1, 1: 2, 2: 1 },
             },
         }));
     }
@@ -334,5 +334,26 @@ describe("Play", function() {
 
         const rows = el.getAllByTestId("row");
         expect(rows[0].querySelectorAll("[data-testid='row-bird']")).toHaveLength(1);
+    });
+
+    it("removes chosen food from feeder", function() {
+        const el = render(
+            <MemoryRouter>
+                <Play player="2" server={server} />
+            </MemoryRouter>
+        );
+
+        sendPlayerInfo();
+
+        act(() => _fakeSocket.dispatch("test", {
+            Type: Response.FoodGained,
+            Payload: {
+                player: "2",
+                food: { 0: 1, 2: 1 },
+            },
+        }));
+
+        const food = el.getAllByTestId("feeder-food");
+        expect(food).toHaveLength(2);
     });
 });

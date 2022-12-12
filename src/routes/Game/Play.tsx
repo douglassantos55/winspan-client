@@ -4,7 +4,7 @@ import PlayerPortrait from "../../components/PlayerPortrait";
 import Progress from "../../components/Progress";
 import useRefState from "../../hooks/useRefState";
 import { Command, Payload, Response, Server } from "../../server";
-import { Bird, FoodType, Board as BoardType, Habitat } from "../../types";
+import { Bird, Board as BoardType, Habitat, FoodMap, FoodType } from "../../types";
 import BirdFeeder from "./BirdFeeder";
 import BirdTray from "./BirdTray";
 import Board from "./Board";
@@ -23,7 +23,7 @@ function Play({ player, server }: Props) {
 
     const [birds, setBirds] = useState<Bird[]>([]);
     const [birdTray, setBirdTray] = useState<Bird[]>([]);
-    const [birdFeeder, setBirdFeeder] = useState<Partial<Record<FoodType, number>>>({});
+    const [birdFeeder, setBirdFeeder] = useState<FoodMap>({});
     const [board, setBoard] = useState<null | BoardType>(null);
 
     const [turn, setTurn] = useState<number>(0);
@@ -110,6 +110,25 @@ function Play({ player, server }: Props) {
             }
         });
 
+        const foodGainedId = server.on(Response.FoodGained, function(payload: Payload) {
+            if (payload.player === refView.current) {
+                setBirdFeeder(function(curr: FoodMap) {
+                    for (const type in payload.food) {
+                        const foodType = parseInt(type) as FoodType;
+                        const qty = curr[foodType] as number;
+                        const newQty = qty - payload.food[type];
+
+                        if (newQty <= 0) {
+                            delete curr[foodType];
+                        } else {
+                            curr[foodType] = newQty;
+                        }
+                    }
+                    return { ...curr };
+                });
+            }
+        });
+
         return function() {
             server.off(Response.PlayerInfo, [infoId]);
             server.off(Response.StartTurn, [startTurnId]);
@@ -117,6 +136,7 @@ function Play({ player, server }: Props) {
             server.off(Response.RoundStarted, [roundStartId]);
             server.off(Response.BirdsDrawn, [birdsDrawnId]);
             server.off(Response.BirdPlayed, [birdPlayedId]);
+            server.off(Response.FoodGained, [foodGainedId]);
         }
     }, [server, player]);
 
@@ -164,7 +184,7 @@ function Play({ player, server }: Props) {
 
                 <div className={styles.sidebar}>
                     <BirdTray birds={birdTray} server={server} />
-                    <BirdFeeder food={birdFeeder} />
+                    <BirdFeeder food={birdFeeder} server={server} />
                 </div>
             </div>
 

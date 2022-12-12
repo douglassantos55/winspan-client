@@ -22,3 +22,7 @@ export type Slots = Array<Bird | null>;
 export type Board = {
     [k in Habitat]: Slots;
 }
+
+export type FoodMap = {
+    [k in FoodType]?: number;
+}
