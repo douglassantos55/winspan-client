@@ -25,7 +25,7 @@ function BoardRow({ icon, slots, amount, server, actionName, actionDescription }
             server.off(Response.WaitTurn, [waitId]);
             server.off(Response.StartTurn, [startId]);
         };
-    }, [server, setIndex]);
+    }, [server, setIndex, slots]);
 
     function activatePower(idx: number) {
         const slot = slots[idx];

@@ -27,11 +27,11 @@ function BoardSlot({ bird, icon, amount, resource, disabled, onClick }: Props) {
 
     return (
         <div className={styles.slot} data-testid="slot">
-            <img className={styles.icon} src={icon} />
+            <img className={styles.icon} src={icon} alt="" />
 
             <div className={styles.resources}>
                 {[...Array(amount)].map((_: number, idx: number) =>
-                    <img key={idx} src={resource} data-testid="resource" />)}
+                    <img key={idx} src={resource} alt="" data-testid="resource" />)}
             </div>
         </div>
     );

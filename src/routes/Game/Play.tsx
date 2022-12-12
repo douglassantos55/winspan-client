@@ -138,7 +138,7 @@ function Play({ player, server }: Props) {
             server.off(Response.BirdPlayed, [birdPlayedId]);
             server.off(Response.FoodGained, [foodGainedId]);
         }
-    }, [server, player]);
+    }, [server, player, refView, refCurrent, setCurrent]);
 
 
     if (board === null) {
