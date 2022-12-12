@@ -57,4 +57,27 @@ describe("Bird feeder", function() {
             Params: { 0: 1, 1: 1 },
         });
     });
+
+    it("disables chosen food", function () {
+        const food = { 0: 1, 1: 2, 2: 1 };
+        const el = render(<BirdFeeder server={server} food={food} />);
+
+        const available = el.getAllByTestId("feeder-food");
+        fireEvent.click(available[0]);
+
+        act(() => _fakeSocket.dispatch("test", {
+            Type: Response.ChooseFood,
+            Payload: {
+                Amount: 2,
+                Available: food,
+            },
+        }));
+
+        expect(available[0].hasAttribute("disabled")).toBe(true);
+        expect(available[1].hasAttribute("disabled")).toBe(false);
+        expect(available[2].hasAttribute("disabled")).toBe(false);
+        expect(available[3].hasAttribute("disabled")).toBe(false);
+
+        fireEvent.click(available[1]);
+    });
 });

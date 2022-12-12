@@ -66,12 +66,15 @@ function BirdFeeder({ server, food }: Props) {
                 const qty = food[foodType] || 0;
 
                 for (let i = 0; i < qty; i++) {
+                    const chosenQty = chosen[parseInt(type) as FoodType] || 0;
+
                     elements.push(
                         <Food
                             key={`${type}_${i}`}
                             type={foodType}
                             data-testid="feeder-food"
                             onClick={() => gainFood(foodType)}
+                            disabled={i < chosenQty}
                         />
                     );
                 }
