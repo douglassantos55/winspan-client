@@ -1,8 +1,7 @@
-import { useEffect, useState } from "react";
+import { createContext, Reducer, useEffect, useReducer } from "react";
 import Button from "../../components/Button";
 import PlayerPortrait from "../../components/PlayerPortrait";
 import Progress from "../../components/Progress";
-import useRefState from "../../hooks/useRefState";
 import { Command, Payload, Response, Server } from "../../server";
 import { Bird, Board as BoardType, Habitat, FoodMap, FoodType } from "../../types";
 import BirdFeeder from "./BirdFeeder";
@@ -17,116 +16,206 @@ type Props = {
     player?: string;
 }
 
+enum GameState {
+    Idle,
+    Waiting,
+    Loading,
+}
+
+type Player = {
+    ID: string;
+    birds: Bird[];
+    board: BoardType;
+    food: FoodMap;
+    turn: number;
+}
+
+type Game = {
+    state: GameState;
+    current: string;
+    view: Player;
+    birdTray: Bird[];
+    birdFeeder: FoodMap;
+    round: number;
+    maxTurns: number;
+    turnDuration: number;
+    players: Player[];
+}
+
+const defaultValue = {
+    round: 1,
+    current: "",
+    maxTurns: 9,
+    birdTray: [],
+    players: [],
+    birdFeeder: {},
+    turnDuration: 60,
+    state: GameState.Loading,
+    view: {
+        ID: "",
+        birds: [],
+        board: {
+            [Habitat.Forest]: [null, null, null, null, null],
+            [Habitat.Grassland]: [null, null, null, null, null],
+            [Habitat.Wetland]: [null, null, null, null, null],
+        },
+        food: {},
+        turn: 0,
+    },
+}
+
+const GameContext = createContext<Game>(defaultValue);
+
+function reducer(state: Game, action: Payload) {
+    switch (action.type) {
+        case Response.PlayerInfo:
+            return {
+                state: action.payload.Current === state.current ? GameState.Idle : GameState.Waiting,
+                view: {
+                    ID: state.view.ID,
+                    birds: action.payload.Birds,
+                    board: action.payload.Board,
+                    food: {},
+                    turn: action.payload.Turn,
+                },
+                current: action.payload.Current,
+                birdTray: action.payload.BirdTray,
+                birdFeeder: action.payload.BirdFeeder,
+                round: action.payload.Round,
+                maxTurns: action.payload.MaxTurns,
+                turnDuration: action.payload.Duration,
+                players: action.payload.TurnOrder,
+            };
+        case Response.BirdsDrawn:
+            return {
+                ...state,
+                view: {
+                    ...state.view,
+                    birds: [...state.view.birds, ...action.payload],
+                },
+                // remove drawn birds from tray
+                birdTray: state.birdTray.filter((bird: Bird) => {
+                    return action.payload.findIndex(function(drawn: Bird) {
+                        return bird.ID === drawn.ID;
+                    }) === -1;
+                }),
+            };
+        case Response.StartTurn:
+        case Response.WaitTurn:
+            return {
+                ...state,
+                view: {
+                    ...state.view,
+                    turn: action.payload.Turn,
+                },
+                current: action.payload.Current,
+                turnDuration: action.payload.Duration,
+            };
+        case Response.RoundStarted:
+            return {
+                ...state,
+                round: action.payload.Round,
+                maxTurns: action.payload.Turns,
+                players: action.payload.TurnOrder,
+                view: { ...state.view, turn: 1 },
+            }
+        case Response.BirdPlayed:
+            const habitat = action.payload.bird.Habitat as Habitat;
+
+            return {
+                ...state,
+                view: {
+                    ...state.view,
+                    birds: state.view.birds.filter((bird: Bird) => {
+                        return bird.ID !== action.payload.bird.ID;
+                    }),
+                    board: {
+                        ...state.view.board,
+                        [habitat]: [
+                            ...state.view.board[habitat],
+                            action.payload.bird,
+                        ],
+                    }
+                },
+            };
+
+        case Response.FoodGained:
+            const curr = state.birdFeeder;
+            for (const type in action.payload.food) {
+                const foodType = parseInt(type) as FoodType;
+                const qty = curr[foodType] as number;
+                const newQty = qty - action.payload.food[type];
+
+                if (newQty <= 0) {
+                    delete curr[foodType];
+                } else {
+                    curr[foodType] = newQty;
+                }
+            }
+            return { ...state, birdFeeder: curr };
+        case "setView":
+            return {
+                ...state,
+                view: {
+                    ...state.view,
+                    ID: action.payload,
+                },
+            };
+        default:
+            throw new Error("could not process action: ", action)
+    };
+}
+
 function Play({ player, server }: Props) {
-    const [refView, view, setView] = useRefState(player);
-    const [refCurrent, current, setCurrent] = useRefState<string>("");
-
-    const [birds, setBirds] = useState<Bird[]>([]);
-    const [birdTray, setBirdTray] = useState<Bird[]>([]);
-    const [birdFeeder, setBirdFeeder] = useState<FoodMap>({});
-    const [board, setBoard] = useState<null | BoardType>(null);
-
-    const [turn, setTurn] = useState<number>(0);
-    const [round, setRound] = useState<number>(0);
-    const [maxTurns, setMaxTurns] = useState<number>(0);
-    const [duration, setDuration] = useState<number>(0);
-    const [turnOrder, setTurnOrder] = useState([]);
+    const [game, dispatch] = useReducer<Reducer<Game, Payload>>(reducer, {
+        ...defaultValue,
+        view: {
+            ID: player as string,
+            birds: [],
+            board: {
+                [Habitat.Forest]: [null, null, null, null, null],
+                [Habitat.Grassland]: [null, null, null, null, null],
+                [Habitat.Wetland]: [null, null, null, null, null],
+            },
+            food: {},
+            turn: 0,
+        },
+    });
 
     useEffect(function() {
         server.send({
             Method: Command.GetPlayerInfo,
-            Params: view,
+            Params: game.view?.ID,
         })
-    }, [view, server]);
+    }, [game.view?.ID, server]);
 
     useEffect(function() {
         const infoId = server.on(Response.PlayerInfo, function(payload: Payload) {
-            setTurn(payload.Turn);
-            setRound(payload.Round);
-            setCurrent(payload.Current);
-            setMaxTurns(payload.MaxTurns);
-            setDuration(payload.Duration);
-            setTurnOrder(payload.TurnOrder);
-
-            setBirds(payload.Birds);
-            setBirdTray(payload.BirdTray);
-            setBirdFeeder(payload.BirdFeeder);
-            setBoard(payload.Board);
+            dispatch({ type: Response.PlayerInfo, payload: { ...payload, Player: player } });
         });
 
         const birdsDrawnId = server.on(Response.BirdsDrawn, (payload: Bird[]) => {
-            if (refCurrent.current === refView.current) {
-                setBirds(function(curr: Bird[]) {
-                    return [...curr, ...payload];
-                });
-            }
-
-            setBirdTray(function(curr: Bird[]) {
-                return curr.filter(function(bird: Bird) {
-                    return payload.findIndex(function(drawn: Bird) {
-                        return bird.ID === drawn.ID;
-                    }) === -1;
-                });
-
-            });
+            dispatch({ type: Response.BirdsDrawn, payload });
         });
 
         const startTurnId = server.on(Response.StartTurn, function(payload: Payload) {
-            setTurn(payload.Turn);
-            setCurrent(player as string);
-            setDuration(payload.Duration);
+            dispatch({ type: Response.StartTurn, payload: { ...payload, Current: player } });
         });
 
         const waitTurnId = server.on(Response.WaitTurn, function(payload: Payload) {
-            setCurrent(payload.Current);
-            setDuration(payload.Duration);
+            dispatch({ type: Response.WaitTurn, payload });
         });
 
         const roundStartId = server.on(Response.RoundStarted, function(payload: Payload) {
-            setTurn(1);
-            setRound(payload.Round);
-            setMaxTurns(payload.Turns);
-            setTurnOrder(payload.TurnOrder)
+            dispatch({ type: Response.RoundStarted, payload });
         });
 
         const birdPlayedId = server.on(Response.BirdPlayed, function(payload: Payload) {
-            if (payload.player === refView.current) {
-                setBirds(function(curr: Bird[]) {
-                    return curr.filter(function(bird: Bird) {
-                        return bird.ID !== payload.bird.ID;
-                    });
-                });
-
-                setBoard(function(curr: null | BoardType) {
-                    if (curr !== null) {
-                        const habitat = payload.bird.Habitat as Habitat;
-                        return {
-                            ...curr,
-                            [habitat]: [...curr[habitat], payload.bird],
-                        }
-                    }
-                    return curr;
-                });
-            }
+            dispatch({ type: Response.BirdPlayed, payload });
         });
 
         const foodGainedId = server.on(Response.FoodGained, function(payload: Payload) {
-            if (payload.player === refView.current) {
-                setBirdFeeder(function(curr: FoodMap) {
-                    for (const type in payload.food) {
-                        const foodType = parseInt(type) as FoodType;
-                        const qty = curr[foodType] as number;
-                        const newQty = qty - payload.food[type];
-
-                        if (newQty <= 0) {
-                            delete curr[foodType];
-                        } else {
-                            curr[foodType] = newQty;
-                        }
-                    }
-                    return { ...curr };
-                });
-            }
+            dispatch({ type: Response.FoodGained, payload });
         });
 
         return function() {
@@ -138,61 +227,63 @@ function Play({ player, server }: Props) {
             server.off(Response.BirdPlayed, [birdPlayedId]);
             server.off(Response.FoodGained, [foodGainedId]);
         }
-    }, [server, player, refView, refCurrent, setCurrent]);
+    }, [server, player]);
 
 
-    if (board === null) {
+    if (game.state === GameState.Loading) {
         return <p>Loading...</p>;
     }
 
     return (
-        <div className={styles.container}>
-            <div className={styles.header}>
-                <span className={styles.round}>Round {round}</span>
+        <GameContext.Provider value={game}>
+            <div className={styles.container}>
+                <div className={styles.header}>
+                    <span className={styles.round}>Round {game.round}</span>
 
-                <div className={styles.players}>
-                    {turnOrder.map(function(curPlayer: any) {
-                        return (
-                            <PlayerPortrait
-                                key={curPlayer.ID}
-                                player={curPlayer}
-                                active={curPlayer.ID === current}
-                                highlighted={curPlayer.ID === view}
-                                onClick={() => setView(curPlayer.ID)}
-                            />
-                        );
-                    })}
+                    <div className={styles.players}>
+                        {game.players.map(function(curPlayer: any) {
+                            return (
+                                <PlayerPortrait
+                                    key={curPlayer.ID}
+                                    player={curPlayer}
+                                    active={curPlayer.ID === game.current}
+                                    highlighted={curPlayer.ID === game.view.ID}
+                                    onClick={() => dispatch({ type: "setView", payload: curPlayer.ID })}
+                                />
+                            );
+                        })}
+                    </div>
+
+                    <div className={styles.turn}>
+                        <div>Turn {game.view.turn}/{game.maxTurns}</div>
+
+                        <Button
+                            data-testid="end-turn"
+                            disabled={game.current !== player}
+                            onClick={() => server.send({ Method: Command.EndTurn })}
+                        >
+                            End turn
+                        </Button>
+                    </div>
                 </div>
 
-                <div className={styles.turn}>
-                    <div>Turn {turn}/{maxTurns}</div>
+                <Progress duration={game.turnDuration} />
 
-                    <Button
-                        data-testid="end-turn"
-                        disabled={current !== player}
-                        onClick={() => server.send({ Method: Command.EndTurn })}
-                    >
-                        End turn
-                    </Button>
+                <div className={styles.main}>
+                    <Board server={server} rows={game.view.board} />
+
+                    <div className={styles.sidebar}>
+                        <BirdTray birds={game.birdTray} server={server} />
+                        <BirdFeeder food={game.birdFeeder} server={server} />
+                    </div>
+                </div>
+
+                <div className={styles.footer}>
+                    <Hand server={server} birds={game.view.birds} />
+                    <Deck server={server} />
                 </div>
             </div>
-
-            <Progress duration={duration} />
-
-            <div className={styles.main}>
-                <Board server={server} rows={board} />
-
-                <div className={styles.sidebar}>
-                    <BirdTray birds={birdTray} server={server} />
-                    <BirdFeeder food={birdFeeder} server={server} />
-                </div>
-            </div>
-
-            <div className={styles.footer}>
-                <Hand server={server} birds={birds} />
-                <Deck server={server} />
-            </div>
-        </div>
+        </GameContext.Provider>
     );
 }
 
