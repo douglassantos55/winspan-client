@@ -2,7 +2,7 @@ import styles from "./BoardRow.module.css";
 import BoardAction from "./BoardAction";
 import BoardSlot from "./BoardSlot";
 import { Bird, Slots } from "../../types";
-import { Command, Response, Server } from "../../server";
+import { Command, Payload, Response, Server } from "../../server";
 import { useEffect, useState } from "react";
 
 type Props = {
@@ -21,9 +21,16 @@ function BoardRow({ icon, slots, amount, server, actionName, actionDescription }
         const waitId = server.on(Response.WaitTurn, () => setIndex(slots.length));
         const startId = server.on(Response.StartTurn, () => setIndex(slots.length));
 
+        const payCostId = server.on(Response.PayBirdCost, function(payload: Payload) {
+            if (payload.EggCost > 0) {
+
+            }
+        });
+
         return function() {
             server.off(Response.WaitTurn, [waitId]);
             server.off(Response.StartTurn, [startId]);
+            server.off(Response.PayBirdCost, [payCostId]);
         };
     }, [server, setIndex, slots]);
 

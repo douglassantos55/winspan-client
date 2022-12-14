@@ -2,7 +2,7 @@ import { act, fireEvent, render } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import Play from "../routes/Game/Play";
 import { Command, Response, ServerImpl } from "../server";
-import { Habitat } from "../types";
+import { FoodType, Habitat } from "../types";
 import _fakeSocket from "./_fakeSocket";
 
 describe("Play", function() {
@@ -23,6 +23,7 @@ describe("Play", function() {
                     [Habitat.Grassland]: [null, null, null, null, null],
                     [Habitat.Wetland]: [null, null, null, null, null],
                 },
+                Food: { [FoodType.Seed]: 1, [FoodType.Fish]: 2, [FoodType.Rodent]: 1 },
                 Birds: [{ ID: 1 }, { ID: 2 }, { ID: 3 }],
                 BirdTray: [{ ID: 4 }, { ID: 5 }, { ID: 6 }],
                 BirdFeeder: { 0: 1, 1: 2, 2: 1 },
@@ -355,5 +356,39 @@ describe("Play", function() {
 
         const food = el.getAllByTestId("feeder-food");
         expect(food).toHaveLength(2);
+    });
+
+    it("pays food cost", function() {
+        const el = render(
+            <MemoryRouter>
+                <Play player="2" server={server} />
+            </MemoryRouter>
+        );
+
+        sendPlayerInfo();
+
+        const hand = el.getAllByTestId("bird");
+
+        fireEvent.click(hand[1]);
+
+        act(() => _fakeSocket.dispatch("test", {
+            Type: Response.PayBirdCost,
+            Payload: {
+                BirdID: 2,
+                Birds: [],
+                EggCost: 0,
+                Food: [FoodType.Fish, FoodType.Rodent],
+            }
+        }));
+
+        const spy = jest.spyOn(server, "send");
+        const food = el.getAllByTestId("player-food");
+
+        fireEvent.click(food[3]);
+
+        expect(spy).toHaveBeenCalledWith({
+            Method: Command.PayBirdCost,
+            Params: { food: [FoodType.Rodent] },
+        });
     });
 });

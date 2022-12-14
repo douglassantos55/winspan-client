@@ -8,6 +8,7 @@ import BirdFeeder from "./BirdFeeder";
 import BirdTray from "./BirdTray";
 import Board from "./Board";
 import Deck from "./Deck";
+import Food from "./Food";
 import Hand from "./Hand";
 import styles from "./Play.module.css";
 
@@ -75,7 +76,7 @@ function reducer(state: Game, action: Payload) {
                     ID: state.view.ID,
                     birds: action.payload.Birds,
                     board: action.payload.Board,
-                    food: {},
+                    food: action.payload.Food,
                     turn: action.payload.Turn,
                 },
                 current: action.payload.Current,
@@ -280,6 +281,7 @@ function Play({ player, server }: Props) {
 
                 <div className={styles.footer}>
                     <Hand server={server} birds={game.view.birds} />
+                    <Food server={server} food={game.view.food} />
                     <Deck server={server} />
                 </div>
             </div>
