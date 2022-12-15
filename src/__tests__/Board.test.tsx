@@ -26,12 +26,16 @@ describe('Board', function() {
     });
 
     it('renders birds on slots', function() {
-        const slots: Array<Bird | null> = [null, null, { ID: 1, Name: 'Bird' }];
+        const slots: Array<Bird | null> = [
+            null,
+            null,
+            { ID: 1, Name: 'Bird', EggCount: 0, EggCost: 0 }
+        ];
+
         const el = render(<BoardRow server={server} icon="" amount={(idx: number) => idx} actionName="" slots={slots} />);
-
         const renderedSlots = el.getAllByTestId('slot');
-        expect(renderedSlots).toHaveLength(3);
 
+        expect(renderedSlots).toHaveLength(3);
         expect(renderedSlots[0]).not.toHaveTextContent('Bird');
         expect(renderedSlots[1]).not.toHaveTextContent('Bird');
         expect(renderedSlots[2]).toHaveTextContent('Bird');
@@ -46,9 +50,9 @@ describe('Board', function() {
 
     it("activates Power", function() {
         const slots: Array<Bird | null> = [
-            { ID: 1, Name: "1" },
-            { ID: 2, Name: "2" },
-            { ID: 3, Name: "3" },
+            { ID: 1, Name: "1", EggCount: 0, EggCost: 0 },
+            { ID: 2, Name: "2", EggCount: 0, EggCost: 0 },
+            { ID: 3, Name: "3", EggCount: 0, EggCost: 0 },
             null,
             null,
         ];
@@ -65,6 +69,10 @@ describe('Board', function() {
 
         const spy = jest.spyOn(server, "send");
         const birds = el.getAllByTestId("row-bird")
+
+        expect(birds[0].hasAttribute("disabled")).toBe(false);
+        expect(birds[1].hasAttribute("disabled")).toBe(false);
+        expect(birds[2].hasAttribute("disabled")).toBe(false);
 
         fireEvent.click(birds[1]);
 

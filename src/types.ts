@@ -9,6 +9,8 @@ export enum FoodType {
 export type Bird = {
     ID: number;
     Name: string;
+    EggCost: number;
+    EggCount: number;
 }
 
 export enum Habitat {

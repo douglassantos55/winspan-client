@@ -19,12 +19,12 @@ describe("Play", function() {
                 MaxTurns: 8,
                 Duration: 100,
                 Board: {
-                    [Habitat.Forest]: [null, null, null, null, null],
-                    [Habitat.Grassland]: [null, null, null, null, null],
-                    [Habitat.Wetland]: [null, null, null, null, null],
+                    [Habitat.Forest]: [{ ID: 10, EggCount: 10 }, null, null, null, null],
+                    [Habitat.Grassland]: [{ ID: 20, EggCount: 0 }, null, null, null, null],
+                    [Habitat.Wetland]: [{ ID: 30, EggCount: 10 }, null, null, null, null],
                 },
                 Food: { [FoodType.Seed]: 1, [FoodType.Fish]: 2, [FoodType.Rodent]: 1 },
-                Birds: [{ ID: 1 }, { ID: 2 }, { ID: 3 }],
+                Birds: [{ ID: 1 }, { ID: 2 }, { ID: 3, EggCost: 2 }],
                 BirdTray: [{ ID: 4 }, { ID: 5 }, { ID: 6 }],
                 BirdFeeder: { 0: 1, 1: 2, 2: 1 },
             },
@@ -334,7 +334,7 @@ describe("Play", function() {
         }));
 
         const rows = el.getAllByTestId("row");
-        expect(rows[0].querySelectorAll("[data-testid='row-bird']")).toHaveLength(1);
+        expect(rows[0].querySelectorAll("[data-testid='row-bird']")).toHaveLength(2);
     });
 
     it("removes chosen food from feeder", function() {
@@ -389,6 +389,72 @@ describe("Play", function() {
         expect(spy).toHaveBeenCalledWith({
             Method: Command.PayBirdCost,
             Params: { food: [FoodType.Rodent] },
+        });
+    });
+
+    it("pays egg cost", function() {
+        const el = render(
+            <MemoryRouter>
+                <Play player="2" server={server} />
+            </MemoryRouter>
+        );
+
+        sendPlayerInfo();
+
+        const spy = jest.spyOn(server, "send");
+        const birds = el.getAllByTestId("row-bird");
+
+        act(() => _fakeSocket.dispatch("test", {
+            Type: Response.PayBirdCost,
+            Payload: {
+                BirdID: 3,
+                Birds: [{ 10: 10 }, { 30: 10 }],
+                EggCost: 1,
+                Food: [],
+            }
+        }));
+
+        expect(birds[0].hasAttribute("disabled")).toBe(false);
+        expect(birds[1].hasAttribute("disabled")).toBe(true);
+        expect(birds[2].hasAttribute("disabled")).toBe(false);
+
+        fireEvent.click(birds[2]);
+
+        expect(spy).toHaveBeenCalledWith({
+            Method: Command.PayBirdCost,
+            Params: { Food: [], Eggs: { 30: 1 }, BirdID: 3 },
+        });
+    });
+
+    it("pays food and egg cost", function() {
+        const el = render(
+            <MemoryRouter>
+                <Play player="2" server={server} />
+            </MemoryRouter>
+        );
+
+        sendPlayerInfo();
+
+        const spy = jest.spyOn(server, "send");
+        const birds = el.getAllByTestId("row-bird");
+        const food = el.getAllByTestId("player-food");
+
+        act(() => _fakeSocket.dispatch("test", {
+            Type: Response.PayBirdCost,
+            Payload: {
+                BirdID: 3,
+                Birds: [{ 10: 10 }, { 30: 10 }],
+                EggCost: 1,
+                Food: [FoodType.Fish, FoodType.Seed],
+            }
+        }));
+
+        fireEvent.click(food[0]);
+        fireEvent.click(birds[0]);
+
+        expect(spy).toHaveBeenCalledWith({
+            Method: Command.PayBirdCost,
+            Params: { food: [FoodType.Seed], eggs: { 10: 1 } },
         });
     });
 });

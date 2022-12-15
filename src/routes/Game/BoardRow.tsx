@@ -14,7 +14,11 @@ type Props = {
     amount: (idx: number) => number;
 }
 
+type EggBag = Record<number, number>;
+
 function BoardRow({ icon, slots, amount, server, actionName, actionDescription }: Props) {
+    const [eggCost, setEggCost] = useState(-1);
+    const [chosen, setChosen] = useState<EggBag>({});
     const [index, setIndex] = useState<number>(slots.length);
 
     useEffect(function() {
@@ -22,9 +26,7 @@ function BoardRow({ icon, slots, amount, server, actionName, actionDescription }
         const startId = server.on(Response.StartTurn, () => setIndex(slots.length));
 
         const payCostId = server.on(Response.PayBirdCost, function(payload: Payload) {
-            if (payload.EggCost > 0) {
-
-            }
+            setEggCost(payload.EggCost);
         });
 
         return function() {
@@ -33,6 +35,37 @@ function BoardRow({ icon, slots, amount, server, actionName, actionDescription }
             server.off(Response.PayBirdCost, [payCostId]);
         };
     }, [server, setIndex, slots]);
+
+    useEffect(function() {
+        const total = Object.values(chosen).reduce(function(total: number, qty: number) {
+            return total + qty;
+        }, 0);
+
+        if (total === eggCost) {
+            server.send({
+                Method: Command.PayBirdCost,
+                Params: { Food: [], Eggs: chosen, BirdID: birdID },
+            });
+            setChosen({});
+            setEggCost(-1);
+        }
+    }, [chosen, eggCost, server, setChosen, setEggCost]);
+
+    function selectBird(idx: number) {
+        if (eggCost === -1) {
+            activatePower(idx);
+        } else {
+            selectEgg(idx)
+        }
+    }
+
+    function selectEgg(idx: number) {
+        const bird = slots[idx] as Bird;
+        setChosen((curr: EggBag) => {
+            const qty = curr[bird.ID] || 0;
+            return { ...curr, [bird.ID]: qty + 1 };
+        });
+    }
 
     function activatePower(idx: number) {
         const slot = slots[idx];
@@ -56,9 +89,9 @@ function BoardRow({ icon, slots, amount, server, actionName, actionDescription }
                         icon={icon}
                         bird={bird}
                         amount={amount(idx)}
-                        disabled={idx >= index}
                         resource="http://placeimg.com/20/20"
-                        onClick={() => activatePower(idx)}
+                        onClick={() => selectBird(idx)}
+                        disabled={(bird && eggCost > 0 && bird.EggCount < eggCost) || idx >= index}
                     />
                 );
             })}
