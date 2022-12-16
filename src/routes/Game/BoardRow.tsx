@@ -18,6 +18,7 @@ type EggBag = Record<number, number>;
 
 function BoardRow({ icon, slots, amount, server, actionName, actionDescription }: Props) {
     const [eggCost, setEggCost] = useState(-1);
+    const [birdID, setBirdID] = useState<number>();
     const [chosen, setChosen] = useState<EggBag>({});
     const [index, setIndex] = useState<number>(slots.length);
 
@@ -27,6 +28,7 @@ function BoardRow({ icon, slots, amount, server, actionName, actionDescription }
 
         const payCostId = server.on(Response.PayBirdCost, function(payload: Payload) {
             setEggCost(payload.EggCost);
+            setBirdID(payload.BirdID);
         });
 
         return function() {

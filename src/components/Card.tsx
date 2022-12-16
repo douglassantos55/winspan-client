@@ -25,6 +25,8 @@ function Card({ bird, selected, ...props }: Props) {
             </figure>
 
             <h2 className={styles.name}>{bird.Name}</h2>
+            <div>{bird.Habitat}</div>
+            <span>{bird.EggCount} / {bird.EggLimit}</span>
         </div>
     );
 }

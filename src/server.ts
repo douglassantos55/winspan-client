@@ -36,6 +36,7 @@ export enum Response {
     ChooseFood = "choose_food",
     FoodGained = "food_gained",
     PayBirdCost = "pay_bird_cost",
+    BirdsUpdated = "bird_updated",
 }
 
 export type Payload = Record<string, any>

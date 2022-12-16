@@ -90,10 +90,10 @@ function reducer(state: Game, action: Payload) {
         case Response.BirdsDrawn:
             return {
                 ...state,
-                view: {
+                view: state.view.ID === state.current ? {
                     ...state.view,
                     birds: [...state.view.birds, ...action.payload],
-                },
+                } : state.view,
                 // remove drawn birds from tray
                 birdTray: state.birdTray.filter((bird: Bird) => {
                     return action.payload.findIndex(function(drawn: Bird) {
@@ -121,7 +121,15 @@ function reducer(state: Game, action: Payload) {
                 view: { ...state.view, turn: 1 },
             }
         case Response.BirdPlayed:
+            if (state.current !== state.view.ID) {
+                return state;
+            }
+
             const habitat = action.payload.bird.Habitat as Habitat;
+            const row = [...state.view.board[habitat]];
+
+            const index = row.findIndex((curr: Bird | null) => curr === null);
+            row[index] = action.payload.bird;
 
             return {
                 ...state,
@@ -132,28 +140,59 @@ function reducer(state: Game, action: Payload) {
                     }),
                     board: {
                         ...state.view.board,
-                        [habitat]: [
-                            ...state.view.board[habitat],
-                            action.payload.bird,
-                        ],
+                        [habitat]: row,
                     }
                 },
             };
+        case Response.BirdsUpdated:
+            if (state.view.ID !== state.current) {
+                return state
+            }
 
-        case Response.FoodGained:
-            const curr = state.birdFeeder;
-            for (const type in action.payload.food) {
-                const foodType = parseInt(type) as FoodType;
-                const qty = curr[foodType] as number;
-                const newQty = qty - action.payload.food[type];
-
-                if (newQty <= 0) {
-                    delete curr[foodType];
-                } else {
-                    curr[foodType] = newQty;
+            const board = { ...state.view.board };
+            for (const ID in action.payload) {
+                const keys = Object.keys(board);
+                for (let i = 0; i < keys.length; i++) {
+                    const habitat = parseInt(keys[i]) as Habitat;
+                    for (let i = 0; i < board[habitat].length; i++) {
+                        const bird = board[habitat][i];
+                        if (bird?.ID === parseInt(ID)) {
+                            (board[habitat][i] as Bird).EggCount = action.payload[ID];
+                        }
+                    }
                 }
             }
-            return { ...state, birdFeeder: curr };
+
+            return { ...state, board };
+        case Response.FoodGained:
+            const feeder = { ...state.birdFeeder };
+            const curr = { ...state.view.food };
+
+            for (const type in action.payload.food) {
+                const foodType = parseInt(type) as FoodType;
+                const qtyFeeder = feeder[foodType] as number;
+                const qtyPlayer = curr[foodType] || 0;
+
+                const newQtyFeeder = qtyFeeder - action.payload.food[type];
+                const newQtyPlayer = qtyPlayer + action.payload.food[type];
+
+                if (newQtyFeeder <= 0) {
+                    delete feeder[foodType];
+                } else {
+                    feeder[foodType] = newQtyFeeder;
+                }
+
+                if (newQtyPlayer <= 0) {
+                    delete curr[foodType];
+                } else {
+                    curr[foodType] = newQtyPlayer;
+                }
+            }
+            return {
+                ...state,
+                birdFeeder: feeder,
+                view: { ...state.view, food: curr }
+            };
         case "setView":
             return {
                 ...state,
@@ -219,6 +258,10 @@ function Play({ player, server }: Props) {
             dispatch({ type: Response.FoodGained, payload });
         });
 
+        const birdsUpdatedId = server.on(Response.BirdsUpdated, function(payload: Payload) {
+            dispatch({ type: Response.BirdsUpdated, payload });
+        });
+
         return function() {
             server.off(Response.PlayerInfo, [infoId]);
             server.off(Response.StartTurn, [startTurnId]);
@@ -227,6 +270,7 @@ function Play({ player, server }: Props) {
             server.off(Response.BirdsDrawn, [birdsDrawnId]);
             server.off(Response.BirdPlayed, [birdPlayedId]);
             server.off(Response.FoodGained, [foodGainedId]);
+            server.off(Response.BirdsUpdated, [birdsUpdatedId]);
         }
     }, [server, player]);
 

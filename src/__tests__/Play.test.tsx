@@ -454,7 +454,25 @@ describe("Play", function() {
 
         expect(spy).toHaveBeenCalledWith({
             Method: Command.PayBirdCost,
-            Params: { food: [FoodType.Seed], eggs: { 10: 1 } },
+            Params: { Food: [FoodType.Seed], Eggs: { 10: 1 }, BirdID: 3 },
         });
+    });
+
+    it("updates birds", function() {
+        const el = render(
+            <MemoryRouter>
+                <Play player="2" server={server} />
+            </MemoryRouter>
+        );
+
+        sendPlayerInfo();
+
+        act(() => _fakeSocket.dispatch("test", {
+            Type: Response.BirdsUpdated,
+            Payload: { 30: 0 },
+        }));
+
+        const birds = el.getAllByTestId("row-bird");
+        expect(birds[2]).toHaveTextContent("0");
     });
 });
