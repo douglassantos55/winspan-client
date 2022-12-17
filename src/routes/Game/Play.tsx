@@ -110,12 +110,14 @@ function reducer(state: Game, action: Payload) {
                     turn: action.payload.Turn,
                 },
                 current: action.payload.Current,
+                birdTray: action.payload.BirdTray,
                 turnDuration: action.payload.Duration,
             };
         case Response.RoundStarted:
             return {
                 ...state,
                 round: action.payload.Round,
+                birdTray: action.payload.BirdTray,
                 maxTurns: action.payload.Turns,
                 players: action.payload.TurnOrder,
                 view: { ...state.view, turn: 1 },
@@ -165,6 +167,10 @@ function reducer(state: Game, action: Payload) {
 
             return { ...state, board };
         case Response.FoodGained:
+            if (state.view.ID !== state.current) {
+                return state
+            }
+
             const feeder = { ...state.birdFeeder };
             const curr = { ...state.view.food };
 
