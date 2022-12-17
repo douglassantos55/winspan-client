@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import Food from "../../components/Food";
+import usePayCost, { Chosen, Cost } from "../../hooks/usePayCost";
 import { Command, Payload, Response, Server } from "../../server";
 import { FoodMap, FoodType } from "../../types";
 
@@ -9,24 +10,31 @@ type Props = {
 }
 
 export default function({ server, food }: Props) {
-    const [available, setAvailable] = useState<FoodType[]>([]);
+    const { total, cost, chosen, setCost, setChosen } = usePayCost();
 
     function selectFood(type: FoodType) {
-        server.send({
-            Method: Command.PayBirdCost,
-            Params: { food: [type] },
-        });
+        if (total() === cost.EggCost || cost.Birds.length === 0) {
+            server.send({
+                Method: Command.PayBirdCost,
+                Params: { ...chosen, Food: [type], BirdID: cost.BirdID },
+            });
+
+            setChosen({ Food: [], Eggs: {} });
+            setCost({ Food: [], Birds: [], EggCost: -1, BirdID: -1 });
+        } else {
+            setChosen((curr: Chosen) => ({ ...curr, Food: [type] }));
+        }
     }
 
     useEffect(function() {
         const hookId = server.on(Response.PayBirdCost, function(payload: Payload) {
-            setAvailable(payload.Food);
+            setCost((curr: Cost) => ({ ...curr, ...payload }));
         });
 
         return function() {
             server.off(Response.PayBirdCost, [hookId]);
         }
-    }, [server, setAvailable])
+    }, [server, setCost])
 
     return (
         <div>
@@ -42,7 +50,7 @@ export default function({ server, food }: Props) {
                             key={`${type}_${i}`}
                             data-testid="player-food"
                             onClick={() => selectFood(foodType)}
-                            disabled={!available.includes(foodType)}
+                            disabled={!cost.Food.includes(foodType)}
                         />
                     );
                 }

@@ -4,6 +4,7 @@ import BoardSlot from "./BoardSlot";
 import { Bird, Slots } from "../../types";
 import { Command, Payload, Response, Server } from "../../server";
 import { useEffect, useState } from "react";
+import usePayCost, { Chosen, Cost } from "../../hooks/usePayCost";
 
 type Props = {
     icon: string;
@@ -14,21 +15,16 @@ type Props = {
     amount: (idx: number) => number;
 }
 
-type EggBag = Record<number, number>;
-
 function BoardRow({ icon, slots, amount, server, actionName, actionDescription }: Props) {
-    const [eggCost, setEggCost] = useState(-1);
-    const [birdID, setBirdID] = useState<number>();
-    const [chosen, setChosen] = useState<EggBag>({});
     const [index, setIndex] = useState<number>(slots.length);
+    const { total, cost, setCost, chosen, setChosen } = usePayCost();
 
     useEffect(function() {
         const waitId = server.on(Response.WaitTurn, () => setIndex(slots.length));
         const startId = server.on(Response.StartTurn, () => setIndex(slots.length));
 
         const payCostId = server.on(Response.PayBirdCost, function(payload: Payload) {
-            setEggCost(payload.EggCost);
-            setBirdID(payload.BirdID);
+            setCost((curr: Cost) => ({ ...curr, ...payload }));
         });
 
         return function() {
@@ -36,25 +32,22 @@ function BoardRow({ icon, slots, amount, server, actionName, actionDescription }
             server.off(Response.StartTurn, [startId]);
             server.off(Response.PayBirdCost, [payCostId]);
         };
-    }, [server, setIndex, slots]);
+    }, [cost, setCost, server, setIndex, slots]);
 
     useEffect(function() {
-        const total = Object.values(chosen).reduce(function(total: number, qty: number) {
-            return total + qty;
-        }, 0);
-
-        if (total === eggCost) {
+        if (total() === cost.EggCost && (chosen.Food.length !== 0 || cost.Food.length === 0)) {
             server.send({
                 Method: Command.PayBirdCost,
-                Params: { Food: [], Eggs: chosen, BirdID: birdID },
+                Params: { ...chosen, BirdID: cost.BirdID },
             });
-            setChosen({});
-            setEggCost(-1);
+
+            setChosen({ Food: [], Eggs: {} });
+            setCost({ Food: [], Birds: [], EggCost: -1, BirdID: -1 });
         }
-    }, [chosen, eggCost, server, setChosen, setEggCost]);
+    }, [cost, chosen, setCost, server]);
 
     function selectBird(idx: number) {
-        if (eggCost === -1) {
+        if (cost.EggCost === -1) {
             activatePower(idx);
         } else {
             selectEgg(idx)
@@ -63,10 +56,12 @@ function BoardRow({ icon, slots, amount, server, actionName, actionDescription }
 
     function selectEgg(idx: number) {
         const bird = slots[idx] as Bird;
-        setChosen((curr: EggBag) => {
-            const qty = curr[bird.ID] || 0;
-            return { ...curr, [bird.ID]: qty + 1 };
-        });
+        const qty = chosen.Eggs[bird.ID] || 0;
+
+        setChosen((curr: Chosen) => ({
+            ...curr,
+            Eggs: { ...curr.Eggs, [bird.ID]: qty + 1 },
+        }));
     }
 
     function activatePower(idx: number) {
@@ -93,7 +88,7 @@ function BoardRow({ icon, slots, amount, server, actionName, actionDescription }
                         amount={amount(idx)}
                         resource="http://placeimg.com/20/20"
                         onClick={() => selectBird(idx)}
-                        disabled={(bird && eggCost > 0 && bird.EggCount < eggCost) || idx >= index}
+                        disabled={(bird && cost.EggCost > 0 && bird.EggCount < cost.EggCost) || idx >= index}
                     />
                 );
             })}

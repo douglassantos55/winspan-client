@@ -53,7 +53,7 @@ describe("Food", function() {
 
         expect(spy).toHaveBeenCalledWith({
             Method: Command.PayBirdCost,
-            Params: { food: [FoodType.Rodent] },
+            Params: { Food: [FoodType.Rodent], Eggs: {}, BirdID: 2 },
         });
     });
 });

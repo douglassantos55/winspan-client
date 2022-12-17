@@ -85,7 +85,7 @@ describe("Play", function() {
 
         act(() => _fakeSocket.dispatch('test', {
             Type: Response.StartTurn,
-            Payload: { Duration: 100, Turn: 3 }
+            Payload: { Duration: 100, Turn: 3, BirdTray: [] }
         }));
 
         const players = el.getAllByTestId('player')
@@ -103,7 +103,7 @@ describe("Play", function() {
 
         act(() => _fakeSocket.dispatch('test', {
             Type: Response.WaitTurn,
-            Payload: { Turn: 3, Current: "4", Duration: 100 }
+            Payload: { Turn: 3, Current: "4", Duration: 100, BirdTray: [] }
         }));
 
         const players = el.getAllByTestId('player')
@@ -120,7 +120,7 @@ describe("Play", function() {
 
         act(() => _fakeSocket.dispatch('test', {
             Type: Response.RoundStarted,
-            Payload: { TurnOrder: [], Round: 3, Turns: 6 }
+            Payload: { TurnOrder: [], Round: 3, Turns: 6, BirdTray: [] }
         }));
 
         expect(el.container).toHaveTextContent("Round 3");
@@ -133,7 +133,7 @@ describe("Play", function() {
 
         act(() => _fakeSocket.dispatch('test', {
             Type: Response.RoundStarted,
-            Payload: { Round: 4, TurnOrder: [{ ID: 2 }, { ID: 3 }] }
+            Payload: { Round: 4, TurnOrder: [{ ID: 2 }, { ID: 3 }], BirdTray: [] }
         }));
 
         const players = el.getAllByTestId('player')
@@ -146,7 +146,7 @@ describe("Play", function() {
 
         act(() => _fakeSocket.dispatch('test', {
             Type: Response.RoundStarted,
-            Payload: { Turns: 4, Round: 4, TurnOrder: [{ ID: 2 }, { ID: 3 }] }
+            Payload: { Turns: 4, Round: 4, TurnOrder: [{ ID: 2 }, { ID: 3 }], BirdTray: [] }
         }));
 
         expect(el.container).toHaveTextContent('Round 4');
@@ -388,7 +388,7 @@ describe("Play", function() {
 
         expect(spy).toHaveBeenCalledWith({
             Method: Command.PayBirdCost,
-            Params: { food: [FoodType.Rodent] },
+            Params: { Food: [FoodType.Rodent], Eggs: {}, BirdID: 2 },
         });
     });
 
@@ -449,8 +449,8 @@ describe("Play", function() {
             }
         }));
 
-        fireEvent.click(food[0]);
         fireEvent.click(birds[0]);
+        fireEvent.click(food[0]);
 
         expect(spy).toHaveBeenCalledWith({
             Method: Command.PayBirdCost,
