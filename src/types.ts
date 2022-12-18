@@ -54,6 +54,7 @@ export type Game = {
     round: number;
     maxTurns: number;
     turnDuration: number;
+    timeLeft: number;
     players: Player[];
 }
 

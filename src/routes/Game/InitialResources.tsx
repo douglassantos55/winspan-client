@@ -4,6 +4,7 @@ import Button from "../../components/Button";
 import Card from "../../components/Card";
 import Food from "../../components/Food";
 import Progress from "../../components/Progress";
+import useTimer from "../../hooks/useTimer";
 import { Command, Response, Server } from "../../server";
 import { Bird, FoodType } from "../../types";
 import styles from "./InitialResources.module.css";
@@ -17,6 +18,7 @@ function InitialResources({ server }: Props) {
     const availableFood = _parseFood(state.Food);
 
     const navigate = useNavigate();
+    const { current, duration } = useTimer(state.Time);
     const [title, setTitle] = useState("Choose which birds to keep");
 
     const [selectedBirds, setSelectedBirds] = useState<number[]>([]);
@@ -150,7 +152,7 @@ function InitialResources({ server }: Props) {
             </div>
 
             <div className={styles.progressContainer}>
-                <Progress duration={state.Time} />
+                <Progress max={duration} current={current} />
             </div>
 
             <Button data-testid="choose" onClick={select} disabled={selectedBirds.length === 0 || selectedFood.length === 0}>Select</Button>

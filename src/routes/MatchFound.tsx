@@ -4,6 +4,7 @@ import Button from '../components/Button';
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import Progress from "../components/Progress";
+import useTimer from "../hooks/useTimer";
 
 type Props = {
     server: Server
@@ -13,6 +14,8 @@ function MatchFound({ server }: Props) {
     const navigate = useNavigate();
     const location = useLocation();
     const [waiting, setWaiting] = useState(false);
+
+    const { current, duration } = useTimer(location.state.time);
 
     useEffect(function() {
         const declinedId = server.on(Response.MatchDeclined, () => navigate('/'));
@@ -41,7 +44,7 @@ function MatchFound({ server }: Props) {
         <div className={styles.container}>
             <div className={styles.content}>
                 <h1 className={styles.title}>Match found</h1>
-                <Progress duration={location.state.time} />
+                <Progress max={duration} current={current} />
 
                 {!waiting && (
                     <div className={styles.buttons}>

@@ -12,6 +12,7 @@ import Deck from "./Deck";
 import Food from "./Food";
 import Hand from "./Hand";
 import styles from "./Play.module.css";
+import useTimer from "../../hooks/useTimer";
 
 type Props = {
     server: Server;
@@ -25,6 +26,7 @@ const defaultValue = {
     birdTray: [],
     players: [],
     birdFeeder: {},
+    timeLeft: 60,
     turnDuration: 60,
     state: GameState.Loading,
     view: {
@@ -60,6 +62,7 @@ function reducer(state: Game, action: Payload) {
                 round: action.payload.Round,
                 maxTurns: action.payload.MaxTurns,
                 turnDuration: action.payload.Duration,
+                timeLeft: action.payload.TimeLeft,
                 players: action.payload.TurnOrder,
             };
         case Response.BirdsDrawn:
@@ -211,6 +214,8 @@ function Play({ player, server }: Props) {
         },
     });
 
+    const { current, duration, reset: resetTimer } = useTimer(game.turnDuration);
+
     useEffect(function() {
         server.send({
             Method: Command.GetPlayerInfo,
@@ -221,6 +226,7 @@ function Play({ player, server }: Props) {
     useEffect(function() {
         const infoId = server.on(Response.PlayerInfo, function(payload: Payload) {
             dispatch({ type: Response.PlayerInfo, payload: { ...payload, Player: player } });
+            resetTimer(payload.Duration, payload.TimeLeft);
         });
 
         const birdsDrawnId = server.on(Response.BirdsDrawn, (payload: Bird[]) => {
@@ -229,10 +235,12 @@ function Play({ player, server }: Props) {
 
         const startTurnId = server.on(Response.StartTurn, function(payload: Payload) {
             dispatch({ type: Response.StartTurn, payload: { ...payload, Current: player } });
+            resetTimer(payload.Duration, payload.TimeLeft);
         });
 
         const waitTurnId = server.on(Response.WaitTurn, function(payload: Payload) {
             dispatch({ type: Response.WaitTurn, payload });
+            resetTimer(payload.Duration, payload.TimeLeft);
         });
 
         const roundStartId = server.on(Response.RoundStarted, function(payload: Payload) {
@@ -261,8 +269,7 @@ function Play({ player, server }: Props) {
             server.off(Response.FoodGained, [foodGainedId]);
             server.off(Response.BirdsUpdated, [birdsUpdatedId]);
         }
-    }, [server, player]);
-
+    }, [server, player, resetTimer]);
 
     if (game.state === GameState.Loading) {
         return <p>Loading...</p>;
@@ -303,7 +310,7 @@ function Play({ player, server }: Props) {
                     </div>
                 </div>
 
-                <Progress duration={game.turnDuration} />
+                <Progress max={duration} current={current} />
 
                 <div className={styles.main}>
                     <Board server={server} rows={game.view.board} />

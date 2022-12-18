@@ -1,23 +1,13 @@
 import styles from './Progress.module.css';
-import { useEffect, useState } from "react";
 
 type Props = {
-    duration: number;
+    max: number;
+    current: number;
 }
 
-function Progress(props: Props) {
-    const [current, setCurrent] = useState(props.duration);
-
-    useEffect(function() {
-        setCurrent((curr: number) => curr - 1);
-        const interval = setInterval(function() {
-            setCurrent((curr: number) => curr - 1);
-        }, 1000);
-        return () => clearInterval(interval);
-    }, []);
-
+function Progress({ max, current }: Props) {
     return (
-        <div style={{ width: `${(current / props.duration) * 100}%` }} className={styles.bar}></div>
+        <div style={{ width: `${(current / max) * 100}%` }} className={styles.bar}></div>
     );
 }
 
