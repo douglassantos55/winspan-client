@@ -1,5 +1,7 @@
 .container {
     gap: 1rem;
     display: flex;
+    max-width: 45rem;
     align-items: center;
+    overflow-x: auto;
 }

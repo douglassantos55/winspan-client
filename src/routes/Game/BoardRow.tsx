@@ -9,6 +9,7 @@ import { GameContext } from "./Play";
 
 type Props = {
     icon: string;
+    resource: string;
     actionName: string;
     slots: Slots;
     server: Server;
@@ -16,7 +17,7 @@ type Props = {
     amount: (idx: number) => number;
 }
 
-function BoardRow({ icon, slots, amount, server, actionName, actionDescription }: Props) {
+function BoardRow({ icon, slots, resource, amount, server, actionName, actionDescription }: Props) {
     const { state } = useContext(GameContext);
 
     const [index, setIndex] = useState<number>(0);
@@ -101,7 +102,7 @@ function BoardRow({ icon, slots, amount, server, actionName, actionDescription }
                         icon={icon}
                         bird={bird}
                         amount={amount(idx)}
-                        resource="http://placeimg.com/20/20"
+                        resource={resource}
                         onClick={() => selectBird(idx)}
                         disabled={(bird && cost.EggCost > 0 && bird.EggCount < cost.EggCost) || idx >= index}
                     />

@@ -1,3 +1,4 @@
+import styles from "./Food.module.css";
 import { useContext, useEffect } from "react";
 import Food from "../../components/Food";
 import usePayCost, { Chosen, Cost } from "../../hooks/usePayCost";
@@ -47,7 +48,7 @@ export default function PlayerFood({ server, food }: Props) {
     }, [server, setCost])
 
     return (
-        <div>
+        <div className={styles.container}>
             {Object.keys(food).map(function(type: string) {
                 const elements = [];
                 const foodType = parseInt(type) as FoodType;

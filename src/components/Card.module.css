@@ -1,8 +1,10 @@
 .container {
     width: 12rem;
     padding: 1rem;
+    flex-shrink: 0;
     cursor: pointer;
     overflow: hidden;
+    background: #ffffff;
     border-radius: 1rem;
     border: 1px solid #eee;
     will-change: transform;

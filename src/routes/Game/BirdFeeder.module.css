@@ -1,7 +1,9 @@
 .container {
+    width: 15rem;
     gap: 0.5rem;
     display: flex;
     flex-wrap: wrap;
+    background: #ffffff;
     padding: 1rem;
     border-radius: 1rem;
     border: 1px solid #eee;

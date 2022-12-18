@@ -1,8 +1,9 @@
 .container {
     gap: 1rem;
-    width: 100%;
+    width: 15rem;
     display: flex;
     padding: 1rem;
+    background: #ffffff;
     align-items: center;
     border-radius: 1rem;
     border: 1px solid #ddd;

@@ -315,10 +315,21 @@ function Play({ player, server }: Props) {
                     </div>
                 </div>
 
-                <Progress max={duration} current={current} />
+                <div className={styles.header}>
+                    <Progress max={duration} current={current} />
+                </div>
 
                 <div className={styles.main}>
-                    <Board server={server} rows={game.view.board} />
+                    <div>
+                        <Board server={server} rows={game.view.board} />
+
+                        <div className={styles.footer}>
+                            <Deck server={server} />
+
+                            <Hand server={server} birds={game.view.birds} />
+                            <Food server={server} food={game.view.food} />
+                        </div>
+                    </div>
 
                     <div className={styles.sidebar}>
                         <BirdTray birds={game.birdTray} server={server} />
@@ -326,11 +337,6 @@ function Play({ player, server }: Props) {
                     </div>
                 </div>
 
-                <div className={styles.footer}>
-                    <Hand server={server} birds={game.view.birds} />
-                    <Food server={server} food={game.view.food} />
-                    <Deck server={server} />
-                </div>
             </div>
         </GameContext.Provider>
     );

@@ -1,6 +1,9 @@
 .slot {
     gap: 2rem;
     display: flex;
+    width: 12rem;
+    height: 14.1rem;
+    background: #ffffff;
     align-items: center;
     border-radius: 1rem;
     border: 1px solid #ddd;
@@ -9,10 +12,16 @@
 }
 
 .icon {
+    width: 4rem;
+    height: 4rem;
 }
 
 .resources {
-    gap: 1rem;
+    gap: 0.2rem;
     display: flex;
     align-items: center;
+}
+
+.resource {
+    width: 2.5rem;
 }

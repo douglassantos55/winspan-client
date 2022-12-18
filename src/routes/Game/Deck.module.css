@@ -1,0 +1,24 @@
+.container {
+    width: 12rem;
+    height: 14.1rem;
+    position: relative;
+}
+
+.card {
+    top: 0;
+    left: 0;
+    width: 12rem;
+    height: 14.1rem;
+    position: absolute;
+    box-shadow: 0 0 0.3rem rgba(0, 0, 0, 0.5);
+}
+
+.card:nth-child(2n) {
+    top: -0.3rem;
+    left: 0.1rem;
+}
+
+.card:nth-child(3n) {
+    top: -0.7rem;
+    left: 0.1rem;
+}

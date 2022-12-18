@@ -2,5 +2,5 @@
     gap: 1rem;
     display: grid;
     align-items: stretch;
-    grid-template-columns: repeat(6, 1fr);
+    grid-template-columns: auto repeat(5, 12rem);
 }

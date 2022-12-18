@@ -2,10 +2,11 @@
     width: 4rem;
     height: 4rem;
     font-size: 1.6rem;
-    background: #f3f3d9;
+    background-image: url("https://imgs.search.brave.com/EquwCIe87Wfuypfkc4ywIf_kjuWrVQZJV7JaEnIlE6A/rs:fit:616:117:1/g:ce/aHR0cHM6Ly9kYXJv/b2x6LmNvbS93cC1j/b250ZW50L3VwbG9h/ZHMvMjAxOS8wNy9X/aW5nc3Bhbi10eXBl/LW9mLWZvb2QucG5n");
     display: flex;
     cursor: pointer;
     align-items: center;
+    background-size: 260px;
     justify-content: center;
     border-radius: 100%;
     border: 1px solid #eee;
