@@ -29,3 +29,31 @@ export type Board = {
 export type FoodMap = {
     [k in FoodType]?: number;
 }
+
+export enum GameState {
+    Idle,
+    Waiting,
+    Loading,
+    ActivatePower,
+}
+
+export type Player = {
+    ID: string;
+    birds: Bird[];
+    board: Board;
+    food: FoodMap;
+    turn: number;
+}
+
+export type Game = {
+    state: GameState;
+    current: string;
+    view: Player;
+    birdTray: Bird[];
+    birdFeeder: FoodMap;
+    round: number;
+    maxTurns: number;
+    turnDuration: number;
+    players: Player[];
+}
+

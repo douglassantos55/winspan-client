@@ -9,7 +9,7 @@ type Props = {
     food: FoodMap;
 }
 
-export default function({ server, food }: Props) {
+export default function PlayerFood({ server, food }: Props) {
     const { total, cost, chosen, setCost, setChosen } = usePayCost();
 
     function selectFood(type: FoodType) {

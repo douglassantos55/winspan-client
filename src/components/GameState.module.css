@@ -1,0 +1,33 @@
+.container {
+    top: 1rem;
+    left: 10rem;
+    padding: 2rem;
+    z-index: 9999;
+    cursor: pointer;
+    position: fixed;
+    max-width: 40rem;
+    border-radius: 1rem;
+    animation-name: scale;
+    animation-duration: 0.3s;
+    animation-timing-function: ease-out;
+    animation-fill-mode: both;
+    background: var(--primary-color);
+    color: var(--primary-contrast-color);
+    box-shadow: 0 0.5rem 1rem 0.2rem rgba(0, 0, 0, 0.3);
+}
+
+@keyframes scale {
+    from { opacity: 0; transform: scaleX(0.5); }
+    to { opacity: 1; transform: scaleX(1); }
+}
+
+.title {
+    display: block;
+    font-size: 2rem;
+    font-weight: bold;
+}
+
+.description {
+    font-size: 1.5rem;
+    margin-top: 1rem;
+}

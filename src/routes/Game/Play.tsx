@@ -2,8 +2,9 @@ import { createContext, Reducer, useEffect, useReducer } from "react";
 import Button from "../../components/Button";
 import PlayerPortrait from "../../components/PlayerPortrait";
 import Progress from "../../components/Progress";
+import StateInfo from "../../components/GameState";
 import { Command, Payload, Response, Server } from "../../server";
-import { Bird, Board as BoardType, Habitat, FoodMap, FoodType } from "../../types";
+import { Bird, Habitat, FoodType, GameState, Game } from "../../types";
 import BirdFeeder from "./BirdFeeder";
 import BirdTray from "./BirdTray";
 import Board from "./Board";
@@ -15,32 +16,6 @@ import styles from "./Play.module.css";
 type Props = {
     server: Server;
     player?: string;
-}
-
-enum GameState {
-    Idle,
-    Waiting,
-    Loading,
-}
-
-type Player = {
-    ID: string;
-    birds: Bird[];
-    board: BoardType;
-    food: FoodMap;
-    turn: number;
-}
-
-type Game = {
-    state: GameState;
-    current: string;
-    view: Player;
-    birdTray: Bird[];
-    birdFeeder: FoodMap;
-    round: number;
-    maxTurns: number;
-    turnDuration: number;
-    players: Player[];
 }
 
 const defaultValue = {
@@ -90,6 +65,9 @@ function reducer(state: Game, action: Payload) {
         case Response.BirdsDrawn:
             return {
                 ...state,
+                state: state.view.ID === state.current
+                    ? GameState.ActivatePower
+                    : state.state,
                 view: state.view.ID === state.current ? {
                     ...state.view,
                     birds: [...state.view.birds, ...action.payload],
@@ -105,6 +83,9 @@ function reducer(state: Game, action: Payload) {
         case Response.WaitTurn:
             return {
                 ...state,
+                state: action.type === Response.WaitTurn
+                    ? GameState.Waiting
+                    : GameState.Idle,
                 view: {
                     ...state.view,
                     turn: action.payload.Turn,
@@ -135,6 +116,7 @@ function reducer(state: Game, action: Payload) {
 
             return {
                 ...state,
+                state: GameState.ActivatePower,
                 view: {
                     ...state.view,
                     birds: state.view.birds.filter((bird: Bird) => {
@@ -196,6 +178,7 @@ function reducer(state: Game, action: Payload) {
             }
             return {
                 ...state,
+                state: GameState.ActivatePower,
                 birdFeeder: feeder,
                 view: { ...state.view, food: curr }
             };
@@ -288,6 +271,8 @@ function Play({ player, server }: Props) {
     return (
         <GameContext.Provider value={game}>
             <div className={styles.container}>
+                <StateInfo state={game.state} />
+
                 <div className={styles.header}>
                     <span className={styles.round}>Round {game.round}</span>
 

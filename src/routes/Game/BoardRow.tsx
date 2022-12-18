@@ -44,7 +44,7 @@ function BoardRow({ icon, slots, amount, server, actionName, actionDescription }
             setChosen({ Food: [], Eggs: {} });
             setCost({ Food: [], Birds: [], EggCost: -1, BirdID: -1 });
         }
-    }, [cost, chosen, setCost, server]);
+    }, [total, setChosen, cost, chosen, setCost, server]);
 
     function selectBird(idx: number) {
         if (cost.EggCost === -1) {
