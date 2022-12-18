@@ -1,7 +1,9 @@
 import styles from "./Hand.module.css";
 import Card from "../../components/Card";
-import { Bird } from "../../types";
+import { Bird, GameState } from "../../types";
 import { Command, Server } from "../../server";
+import { useContext } from "react";
+import { GameContext } from "./Play";
 
 type Props = {
     birds: Bird[];
@@ -9,11 +11,15 @@ type Props = {
 }
 
 function Hand({ server, birds }: Props) {
+    const { state, view, current } = useContext(GameContext);
+
     function playBird(birdID: number) {
-        server.send({
-            Method: Command.PlayBird,
-            Params: birdID,
-        });
+        if (state === GameState.Idle) {
+            server.send({
+                Method: Command.PlayBird,
+                Params: birdID,
+            });
+        }
     }
 
     return (
@@ -25,6 +31,7 @@ function Hand({ server, birds }: Props) {
                         bird={bird}
                         data-testid="bird"
                         onClick={() => playBird(bird.ID)}
+                        disabled={state !== GameState.Idle && current !== view.ID}
                     />
                 );
             })}

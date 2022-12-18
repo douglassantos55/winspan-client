@@ -43,13 +43,14 @@ const defaultValue = {
     },
 }
 
-const GameContext = createContext<Game>(defaultValue);
+export const GameContext = createContext<Game>(defaultValue);
 
 function reducer(state: Game, action: Payload) {
     switch (action.type) {
         case Response.PlayerInfo:
             return {
                 ...state,
+                state: GameState.Waiting,
                 view: {
                     ID: state.view.ID,
                     birds: action.payload.Birds,
@@ -155,10 +156,6 @@ function reducer(state: Game, action: Payload) {
 
             return { ...state, board };
         case Response.FoodGained:
-            if (state.view.ID !== state.current) {
-                return state
-            }
-
             const feeder = { ...state.birdFeeder };
             const curr = { ...state.view.food };
 
@@ -188,7 +185,9 @@ function reducer(state: Game, action: Payload) {
                     ? GameState.ActivatePower
                     : state.state,
                 birdFeeder: feeder,
-                view: { ...state.view, food: curr }
+                view: state.view.ID === state.current
+                    ? { ...state.view, food: curr }
+                    : state.view,
             };
         case "setView":
             return {

@@ -1,10 +1,11 @@
 import styles from "./BoardRow.module.css";
 import BoardAction from "./BoardAction";
 import BoardSlot from "./BoardSlot";
-import { Bird, Slots } from "../../types";
+import { Bird, GameState, Slots } from "../../types";
 import { Command, Payload, Response, Server } from "../../server";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import usePayCost, { Chosen, Cost } from "../../hooks/usePayCost";
+import { GameContext } from "./Play";
 
 type Props = {
     icon: string;
@@ -16,12 +17,24 @@ type Props = {
 }
 
 function BoardRow({ icon, slots, amount, server, actionName, actionDescription }: Props) {
-    const [index, setIndex] = useState<number>(slots.length);
+    const { state } = useContext(GameContext);
+
+    const [index, setIndex] = useState<number>(0);
     const { total, cost, setCost, chosen, setChosen } = usePayCost();
 
     useEffect(function() {
-        const waitId = server.on(Response.WaitTurn, () => setIndex(slots.length));
-        const startId = server.on(Response.StartTurn, () => setIndex(slots.length));
+        if (state === GameState.Idle || state === GameState.Waiting) {
+            setIndex(0);
+            setChosen({ Food: [], Eggs: {} });
+            setCost({ Food: [], Birds: [], EggCost: -1, BirdID: -1 });
+        } else if (state === GameState.ActivatePower) {
+            setIndex(slots.length);
+        }
+    }, [slots, state, setIndex, setCost, setChosen]);
+
+    useEffect(function() {
+        const waitId = server.on(Response.WaitTurn, () => setIndex(0));
+        const startId = server.on(Response.StartTurn, () => setIndex(0));
 
         const payCostId = server.on(Response.PayBirdCost, function(payload: Payload) {
             setCost((curr: Cost) => ({ ...curr, ...payload }));
@@ -48,7 +61,9 @@ function BoardRow({ icon, slots, amount, server, actionName, actionDescription }
 
     function selectBird(idx: number) {
         if (cost.EggCost === -1) {
-            activatePower(idx);
+            if (state === GameState.ActivatePower) {
+                activatePower(idx);
+            }
         } else {
             selectEgg(idx)
         }

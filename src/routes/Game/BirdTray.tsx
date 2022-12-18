@@ -1,8 +1,9 @@
 import styles from "./BirdTray.module.css";
 import Card from "../../components/Card";
-import { Bird } from "../../types";
+import { Bird, GameState } from "../../types";
 import { Command, Payload, Response, Server } from "../../server";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useContext, useEffect, useRef, useState } from "react";
+import { GameContext } from "./Play";
 
 type Props = {
     birds: Bird[];
@@ -13,6 +14,15 @@ function BirdTray({ birds, server }: Props) {
     const birdID = useRef<number>();
     const [birdsToDraw, setBirdsToDraw] = useState<number[]>([]);
     const [selecting, setSelecting] = useState<Payload>();
+
+    const { state } = useContext(GameContext);
+
+    useEffect(function() {
+        if (state !== GameState.Idle) {
+            setBirdsToDraw([]);
+            setSelecting(undefined);
+        }
+    }, [state]);
 
     useEffect(function() {
         if (birdsToDraw.length === selecting?.qty) {
@@ -42,7 +52,7 @@ function BirdTray({ birds, server }: Props) {
     }, [selecting, birdID, selectBird]);
 
     function draw(bird: number) {
-        if (selecting === undefined) {
+        if (state === GameState.Idle && selecting === undefined) {
             birdID.current = bird;
             server.send({ Method: Command.DrawCards });
 
@@ -64,6 +74,7 @@ function BirdTray({ birds, server }: Props) {
                         bird={bird}
                         data-testid="tray-bird"
                         onClick={() => draw(bird.ID)}
+                        disabled={state !== GameState.Idle}
                         selected={birdsToDraw.includes(bird.ID)}
                     />
                 );
