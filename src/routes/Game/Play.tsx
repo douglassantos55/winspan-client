@@ -20,6 +20,7 @@ type Props = {
 }
 
 const defaultValue = {
+    player: "",
     round: 1,
     current: "",
     maxTurns: 9,
@@ -48,7 +49,7 @@ function reducer(state: Game, action: Payload) {
     switch (action.type) {
         case Response.PlayerInfo:
             return {
-                state: action.payload.Current === state.current ? GameState.Idle : GameState.Waiting,
+                ...state,
                 view: {
                     ID: state.view.ID,
                     birds: action.payload.Birds,
@@ -68,7 +69,7 @@ function reducer(state: Game, action: Payload) {
         case Response.BirdsDrawn:
             return {
                 ...state,
-                state: state.view.ID === state.current
+                state: state.player === state.current
                     ? GameState.ActivatePower
                     : state.state,
                 view: state.view.ID === state.current ? {
@@ -119,7 +120,9 @@ function reducer(state: Game, action: Payload) {
 
             return {
                 ...state,
-                state: GameState.ActivatePower,
+                state: state.current === state.player
+                    ? GameState.ActivatePower
+                    : state.state,
                 view: {
                     ...state.view,
                     birds: state.view.birds.filter((bird: Bird) => {
@@ -181,7 +184,9 @@ function reducer(state: Game, action: Payload) {
             }
             return {
                 ...state,
-                state: GameState.ActivatePower,
+                state: state.current === state.player
+                    ? GameState.ActivatePower
+                    : state.state,
                 birdFeeder: feeder,
                 view: { ...state.view, food: curr }
             };
@@ -201,6 +206,7 @@ function reducer(state: Game, action: Payload) {
 function Play({ player, server }: Props) {
     const [game, dispatch] = useReducer<Reducer<Game, Payload>>(reducer, {
         ...defaultValue,
+        player: player as string,
         view: {
             ID: player as string,
             birds: [],

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { GameState } from "../types";
 import styles from "./GameState.module.css";
 
@@ -8,11 +8,21 @@ type Props = {
 
 function Helper({ state }: Props) {
     const [visible, setVisible] = useState(false);
+    const timeout = useRef<ReturnType<typeof setTimeout>>();
 
     useEffect(function() {
+        timeout.current = setTimeout(function() {
+            setVisible(true);
+            timeout.current = setTimeout(() => setVisible(false), 5000);
+        }, 100);
+
+        return () => clearTimeout(timeout.current);
+    }, [state, timeout]);
+
+    function close() {
+        clearTimeout(timeout.current);
         setVisible(false);
-        setTimeout(() => setVisible(true), 100);
-    }, [state]);
+    }
 
     function getTitle() {
         switch (state) {
@@ -45,7 +55,7 @@ function Helper({ state }: Props) {
     }
 
     return (
-        <div className={styles.container}>
+        <div className={styles.container} onClick={close}>
             <span className={styles.title}>{getTitle()}</span>
             <span className={styles.description}>{getDescription()}</span>
         </div>

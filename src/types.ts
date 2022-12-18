@@ -46,6 +46,7 @@ export type Player = {
 }
 
 export type Game = {
+    player: string;
     state: GameState;
     current: string;
     view: Player;
