@@ -20,12 +20,12 @@ type Props = {
 function BoardRow({ icon, slots, resource, amount, server, actionName, actionDescription }: Props) {
     const { state } = useContext(GameContext);
 
-    const [index, setIndex] = useState<number>(0);
+    const [index, setIndex] = useState<number>(slots.length);
     const { total, cost, setCost, chosen, setChosen } = usePayCost();
 
     useEffect(function() {
         if (state === GameState.Idle || state === GameState.Waiting) {
-            setIndex(0);
+            setIndex(slots.length);
             setChosen({ Food: [], Eggs: {} });
             setCost({ Food: [], Birds: [], EggCost: -1, BirdID: -1 });
         } else if (state === GameState.ActivatePower) {
@@ -34,8 +34,8 @@ function BoardRow({ icon, slots, resource, amount, server, actionName, actionDes
     }, [slots, state, setIndex, setCost, setChosen]);
 
     useEffect(function() {
-        const waitId = server.on(Response.WaitTurn, () => setIndex(0));
-        const startId = server.on(Response.StartTurn, () => setIndex(0));
+        const waitId = server.on(Response.WaitTurn, () => setIndex(slots.length));
+        const startId = server.on(Response.StartTurn, () => setIndex(slots.length));
 
         const payCostId = server.on(Response.PayBirdCost, function(payload: Payload) {
             setCost((curr: Cost) => ({ ...curr, ...payload }));

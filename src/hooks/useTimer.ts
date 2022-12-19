@@ -15,7 +15,6 @@ function useTimer(max: number, curr?: number) {
     }, []);
 
     function reset(max: number, curr: number) {
-        console.log(max, curr);
         setDuration(max);
         setCurrent(curr);
 

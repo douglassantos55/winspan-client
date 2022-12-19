@@ -1,6 +1,8 @@
 import { act, fireEvent, render } from "@testing-library/react";
 import BirdFeeder from "../routes/Game/BirdFeeder";
+import { GameContext } from "../routes/Game/Play";
 import { Command, Response, ServerImpl } from "../server";
+import { GameState } from "../types";
 import _fakeSocket from "./_fakeSocket";
 
 describe("Bird feeder", function() {
@@ -20,7 +22,14 @@ describe("Bird feeder", function() {
 
     it("gains food", function() {
         const food = { 0: 1, 1: 2 };
-        const el = render(<BirdFeeder server={server} food={food} />);
+        const ctx = { state: GameState.Idle };
+
+        const el = render(
+            // @ts-ignore
+            <GameContext.Provider value={ctx}>
+                <BirdFeeder server={server} food={food} />
+            </GameContext.Provider>
+        );
 
         const spy = jest.spyOn(server, "send");
 
@@ -35,7 +44,14 @@ describe("Bird feeder", function() {
 
     it("chooses food", function() {
         const food = { 0: 1, 1: 2, 2: 1 };
-        const el = render(<BirdFeeder server={server} food={food} />);
+        const ctx = { state: GameState.Idle };
+
+        const el = render(
+            // @ts-ignore
+            <GameContext.Provider value={ctx}>
+                <BirdFeeder server={server} food={food} />
+            </GameContext.Provider>
+        );
 
         const spy = jest.spyOn(server, "send");
         const available = el.getAllByTestId("feeder-food");
@@ -58,9 +74,16 @@ describe("Bird feeder", function() {
         });
     });
 
-    it("disables chosen food", function () {
+    it("disables chosen food", function() {
         const food = { 0: 1, 1: 2, 2: 1 };
-        const el = render(<BirdFeeder server={server} food={food} />);
+        const ctx = { state: GameState.Idle };
+
+        const el = render(
+            // @ts-ignore
+            <GameContext.Provider value={ctx}>
+                <BirdFeeder server={server} food={food} />
+            </GameContext.Provider>
+        );
 
         const available = el.getAllByTestId("feeder-food");
         fireEvent.click(available[0]);

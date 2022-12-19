@@ -10,6 +10,7 @@ export type Bird = {
     ID: number;
     Name: string;
     Habitat: Habitat;
+    EggCost: number;
     EggCount: number;
     EggLimit: number;
 }

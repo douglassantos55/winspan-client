@@ -1,6 +1,8 @@
 import { act, fireEvent, render } from "@testing-library/react";
 import BirdTray from "../routes/Game/BirdTray";
+import { GameContext } from "../routes/Game/Play";
 import { Command, Response, ServerImpl } from "../server";
+import { GameState } from "../types";
 import _fakeSocket from "./_fakeSocket";
 
 describe("Bird Tray", function() {
@@ -8,8 +10,8 @@ describe("Bird Tray", function() {
 
     it("renders birds", function() {
         const birds = [
-            { ID: 1, Name: "Bird 1" },
-            { ID: 2, Name: "Bird 2" },
+            { ID: 1, Name: "Bird 1", Habitat: 0, EggCost: 0, EggLimit: 0, EggCount: 0 },
+            { ID: 2, Name: "Bird 2", Habitat: 0, EggCost: 0, EggLimit: 0, EggCount: 0 },
         ];
 
         const el = render(<BirdTray birds={birds} server={server} />);
@@ -22,8 +24,19 @@ describe("Bird Tray", function() {
     });
 
     it("draws birds from tray", function() {
-        const tray = [{ ID: 1, Name: "1" }, { ID: 2, Name: "2" }];
-        const el = render(<BirdTray birds={tray} server={server} />);
+        const tray = [
+            { ID: 1, Name: "1", Habitat: 0, EggCost: 0, EggLimit: 0, EggCount: 0 },
+            { ID: 2, Name: "2", Habitat: 0, EggCost: 0, EggLimit: 0, EggCount: 0 }
+        ];
+
+        const ctx = { state: GameState.Idle };
+
+        const el = render(
+            // @ts-ignore
+            <GameContext.Provider value={ctx}>
+                <BirdTray birds={tray} server={server} />
+            </GameContext.Provider>
+        );
 
         const spy = jest.spyOn(server, "send");
         let birds = el.getAllByTestId("tray-bird");

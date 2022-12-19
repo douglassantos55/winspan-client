@@ -52,16 +52,18 @@ function BirdTray({ birds, server }: Props) {
     }, [selecting, birdID, selectBird]);
 
     function draw(bird: number) {
-        if (state === GameState.Idle && selecting === undefined) {
-            birdID.current = bird;
-            server.send({ Method: Command.DrawCards });
+        if (state === GameState.Idle) {
+            if (selecting === undefined) {
+                birdID.current = bird;
+                server.send({ Method: Command.DrawCards });
 
-            const hookId = server.on(Response.ChooseBirds, (payload: Payload) => {
-                setSelecting(payload);
-                server.off(Response.ChooseBirds, [hookId]);
-            });
-        } else {
-            selectBird(bird);
+                const hookId = server.on(Response.ChooseBirds, (payload: Payload) => {
+                    setSelecting(payload);
+                    server.off(Response.ChooseBirds, [hookId]);
+                });
+            } else {
+                selectBird(bird);
+            }
         }
     }
 

@@ -50,7 +50,9 @@ function reducer(state: Game, action: Payload) {
         case Response.PlayerInfo:
             return {
                 ...state,
-                state: GameState.Waiting,
+                state: action.payload.Current === state.player
+                    ? GameState.Idle
+                    : GameState.Waiting,
                 view: {
                     ID: state.view.ID,
                     birds: action.payload.Birds,
@@ -230,7 +232,7 @@ function Play({ player, server }: Props) {
 
     useEffect(function() {
         const infoId = server.on(Response.PlayerInfo, function(payload: Payload) {
-            dispatch({ type: Response.PlayerInfo, payload: { ...payload, Player: player } });
+            dispatch({ type: Response.PlayerInfo, payload });
             resetTimer(payload.Duration, payload.TimeLeft);
         });
 

@@ -449,6 +449,15 @@ describe("Play", function() {
             }
         }));
 
+        expect(birds[0].hasAttribute("disabled")).toBe(false);
+        expect(birds[1].hasAttribute("disabled")).toBe(true);
+        expect(birds[2].hasAttribute("disabled")).toBe(false);
+
+        expect(food[0].hasAttribute("disabled")).toBe(false);
+        expect(food[1].hasAttribute("disabled")).toBe(false);
+        expect(food[2].hasAttribute("disabled")).toBe(false);
+        expect(food[3].hasAttribute("disabled")).toBe(true);
+
         fireEvent.click(birds[0]);
         fireEvent.click(food[0]);
 
